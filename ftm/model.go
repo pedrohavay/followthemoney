@@ -23,6 +23,7 @@ type Model struct {
 	extendsIndex map[string][]*Schema
 	rangeIndex   map[string]string      // prop.qname -> schema name
 	reverseIndex map[string]reverseSpec // prop.qname -> reverseSpec
+	extendsNames map[string][]string    // temporary: child -> parent names
 
 	once sync.Once
 }
@@ -36,6 +37,7 @@ func NewModel(path string) (*Model, error) {
 		extendsIndex: map[string][]*Schema{},
 		rangeIndex:   map[string]string{},
 		reverseIndex: map[string]reverseSpec{},
+		extendsNames: map[string][]string{},
 	}
 	if err := m.loadAll(); err != nil {
 		return nil, err
@@ -115,12 +117,7 @@ func (m *Model) loadAll() error {
 			m.Schemata[name] = sc
 			// capture extends relations (names only; resolved later)
 			if len(spec.Extends) > 0 {
-				// record on child which parents it extends; resolve later
-				// We'll store names first in an aux index: m.extendsIndex will be filled later
-				// For now, we just save the names in a temporary property on the schema via model index
-				// We'll resolve to schema pointers in Generate
-				// We'll store as names on a separate map keyed by child name using temporary schema object
-				// Add during Generate by reading spec again: to avoid re-parsing the file we keep them here
+				m.extendsNames[name] = append(m.extendsNames[name], spec.Extends...)
 			}
 			// Prepare per-property range and reverse indexes
 			for pn, ps := range spec.Properties {
@@ -139,41 +136,17 @@ func (m *Model) loadAll() error {
 		return err
 	}
 
-	// Second pass: build extends index from re-reading files (to get parents list) or infer from loaded schemata.
-	// Since we already have m.Schemata, we can walk again and fill extendsIndex using schemaSpec.Extends.
-	if err := filepath.WalkDir(m.Path, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		if d.IsDir() {
-			return nil
-		}
-		if !strings.HasSuffix(d.Name(), ".yml") && !strings.HasSuffix(d.Name(), ".yaml") {
-			return nil
-		}
-		raw, err := os.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		fileDefs := map[string]schemaSpec{}
-		if err := yaml.Unmarshal(raw, &fileDefs); err != nil {
-			return err
-		}
-		for name, spec := range fileDefs {
-			// For each parent name, find schema and append to extendsIndex[child]
-			for _, parentName := range spec.Extends {
-				if parent := m.Schemata[parentName]; parent != nil {
-					m.extendsIndex[name] = append(m.extendsIndex[name], parent)
-				} else {
-					return fmt.Errorf("invalid extends: %s -> %s", name, parentName)
-				}
+	// Resolve extends names into schema pointers now that all schemata are loaded
+	for child, parents := range m.extendsNames {
+		for _, parentName := range parents {
+			parent := m.Schemata[parentName]
+			if parent == nil {
+				return fmt.Errorf("invalid extends: %s -> %s", child, parentName)
 			}
+			m.extendsIndex[child] = append(m.extendsIndex[child], parent)
 		}
-		return nil
-	}); err != nil {
-		return err
 	}
-	return nil
+    return nil
 }
 
 // Generate resolves cross-references and inheritance.
