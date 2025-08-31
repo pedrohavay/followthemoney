@@ -209,3 +209,13 @@ func (m *Model) CommonSchema(left, right *Schema) (*Schema, error) {
 }
 
 func (m *Model) Get(name string) *Schema { return m.Schemata[name] }
+
+// DefaultModel is the default, package-level instance of the FtM model.
+// It loads schemata from the local "schema" folder by default, or from
+// the path specified via the FTM_MODEL_PATH environment variable.
+//
+// You can override it in your application by assigning a custom instance:
+//
+//	m, _ := ftm.NewModel("/path/to/schema")
+//	ftm.DefaultModel = m
+var DefaultModel = Instance()
