@@ -57,11 +57,11 @@ func newProperty(schema *Schema, name string, spec propertySpec) (*Property, err
 	if spec.MaxLength != nil {
 		p.MaxLength = *spec.MaxLength
 	}
-	tname := spec.Type
-	if tname == "" {
-		tname = "string"
+	tName := spec.Type
+	if tName == "" {
+		tName = "string"
 	}
-	p.Type = registry.Get(tname)
+	p.Type = registry.Get(tName)
 	if p.Type == nil {
 		// Fallback to string type for unsupported types in this minimal port.
 		p.Type = registry.String

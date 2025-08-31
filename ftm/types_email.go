@@ -1,10 +1,11 @@
 package ftm
 
 import (
-	"golang.org/x/net/idna"
 	"net/mail"
 	"regexp"
 	"strings"
+
+	"golang.org/x/net/idna"
 )
 
 // EmailType validates/normalizes emails with IDNA domain handling.

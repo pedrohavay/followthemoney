@@ -87,8 +87,8 @@ func (e *EntityProxy) Add(name string, values []string, fuzzy bool, format strin
 			continue
 		}
 		// aggregate size cap
-		if max := p.Type.TotalSize(); max > 0 {
-			if e.size+len(clean) > max {
+		if maxValue := p.Type.TotalSize(); maxValue > 0 {
+			if e.size+len(clean) > maxValue {
 				continue
 			}
 		}
@@ -118,7 +118,7 @@ func (e *EntityProxy) UnsafeAdd(p *Property, value string, fuzzy bool) (string, 
 			return clean, true
 		}
 	}
-	if max := p.Type.TotalSize(); max > 0 && e.size+len(clean) > max {
+	if maxVal := p.Type.TotalSize(); maxVal > 0 && e.size+len(clean) > maxVal {
 		return "", false
 	}
 	e.props[p.Name] = append(e.props[p.Name], clean)
@@ -207,7 +207,7 @@ func (e *EntityProxy) EdgePairs() [][2]string {
 // GetTypeValues returns all values with a given property type name.
 func (e *EntityProxy) GetTypeValues(pt PropertyType, matchable bool) []string {
 	seen := map[string]struct{}{}
-	out := []string{}
+	var out []string
 	for name, vals := range e.props {
 		p := e.Schema.Get(name)
 		if p == nil {
@@ -232,12 +232,12 @@ func (e *EntityProxy) GetTypeValues(pt PropertyType, matchable bool) []string {
 // Caption picks a human-friendly caption, using schema caption properties.
 func (e *EntityProxy) Caption() string {
 	// Prefer name-type with multiple values -> heuristic pick (shortest)
-	for _, pname := range e.Schema.Caption {
-		p := e.Schema.Get(pname)
+	for _, pName := range e.Schema.Caption {
+		p := e.Schema.Get(pName)
 		if p == nil {
 			continue
 		}
-		values := e.Get(pname, true)
+		values := e.Get(pName, true)
 		if p.Type.Name() == registry.Name.Name() && len(values) > 1 {
 			return shortest(values...)
 		}

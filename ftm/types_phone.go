@@ -1,8 +1,9 @@
 package ftm
 
 import (
-	phonenumbers "github.com/nyaruka/phonenumbers"
 	"strings"
+
+	phonenumbers "github.com/nyaruka/phonenumbers"
 )
 
 // PhoneType uses libphonenumber for E.164 formatting and parsing.
