@@ -1,0 +1,78 @@
+# OSM: https://wiki.openstreetmap.org/wiki/Proposed_features/House_numbers/Karlsruhe_Schema#Tags
+# Seen in the wild:
+#
+# - full
+# - remarks / note
+# - c/o
+# - location
+# - unknown
+# - address-details / street
+# - house number / house name
+# - address1 / address2 / address3
+# - city
+# - po box
+# - zip code / postcode / postal_code
+# - region
+# - area / state / province
+# - country
+Address:
+  label: Address
+  plural: Addresses
+  extends:
+    - Thing
+  description: >
+    A location associated with an entity.
+  matchable: true
+  generated: false
+  featured:
+    - full
+    - city
+    - street
+    - country
+  caption:
+    - full
+    - summary
+    - city
+    - remarks
+  properties:
+    full:
+      label: "Full address"
+      type: address
+    remarks:
+      label: "Remarks"
+      description: "Handling instructions, like 'care of'."
+    postOfficeBox:
+      label: "PO Box"
+      description: "A mailbox identifier at the post office"
+    street:
+      label: "Street address"
+    street2:
+      label: "Street address (ctd.)"
+    city:
+      label: "City"
+      description: "City, town, village or other locality"
+    postalCode:
+      label: "Postal code"
+      description: "Zip code or postcode."
+      maxLength: 16
+    region:
+      label: "Region"
+      description: "Also province or area."
+    state:
+      label: "State"
+      description: "State or federal unit."
+    latitude:
+      label: "Latitude"
+      type: "number"
+    longitude:
+      label: "Longitude"
+      type: "number"
+    country:
+      label: "Country"
+      type: "country"
+    osmId:
+      label: "OpenStreetmap Place ID"
+      type: "identifier"
+    googlePlaceId:
+      label: "Google Places ID"
+      type: "identifier"

@@ -1,0 +1,115 @@
+Thing:
+  # Kein Ding, digga, das Ding hat swing.
+  # Root type of all entities that should be rendered in Aleph.
+  abstract: true
+  matchable: false
+  featured:
+    - name
+    - country
+  required:
+    - name
+  caption:
+    - name
+  properties:
+    name:
+      label: Name
+      type: name
+    summary: # a short one-liner kind of description
+      label: Summary
+      type: text
+    description: # a longer description
+      label: Description
+      type: text
+    country:
+      label: Country
+      type: country
+    alias:
+      label: Other name
+      type: name
+    previousName:
+      label: Previous name
+      type: name
+    weakAlias:
+      label: Weak alias
+      type: name
+      matchable: false
+    sourceUrl:
+      label: Source link
+      type: url
+      matchable: false
+    publisher:
+      label: "Publishing source"
+      matchable: false
+    publisherUrl:
+      label: "Publishing source URL"
+      type: url
+      matchable: false
+    alephUrl:
+      label: Aleph URL
+      type: url
+      hidden: true
+      matchable: false
+    wikipediaUrl:
+      label: Wikipedia Article
+      type: url
+    wikidataId:
+      label: Wikidata ID
+      type: identifier
+      format: qid
+      maxLength: 32
+    keywords:
+      label: Keywords
+    topics:
+      label: Topics
+      type: topic
+    address:
+      label: Address
+      type: address
+    addressEntity:
+      label: Address
+      reverse:
+        name: things
+        label: "Located there"
+      type: entity
+      range: Address
+    program: # Used by sanctions
+      label: Program
+      description: Regulatory program or sanctions list on which an entity is listed.
+    programId:
+      # This is a unique identifier for the program issued by OpenSanctions, but
+      # could also be used for authority-issued IDs in other usage scenarios.
+      label: "Program ID"
+      type: identifier
+      maxLength: 64
+      hidden: true
+      matchable: false
+    notes:
+      label: Notes
+      type: text
+    proof:
+      label: Source document
+      reverse:
+        name: proven
+        label: "Derived entities"
+      type: entity
+      range: Document
+    indexText:
+      # This is a leaked abstraction from aleph. The idea is to have some
+      # additional text field that can be used to associate searchable text
+      # with an entity. This will be removed as a property upon indexing so
+      # that it can never be retrieved.
+      label: Index text
+      hidden: true
+      type: text
+    createdAt:
+      label: "Created at"
+      type: date
+      matchable: false
+    modifiedAt:
+      label: "Modified on"
+      type: date
+      matchable: false
+    retrievedAt:
+      label: "Retrieved on"
+      type: date
+      matchable: false

@@ -1,0 +1,25 @@
+Image:
+  extends:
+    - Document
+  label: Image
+  plural: Images
+  description: >
+    An image file.
+  matchable: false
+  generated: true
+  featured:
+    - title
+    - fileName
+    - mimeType
+    - parent
+  caption:
+    - fileName
+    - title
+  properties:
+    pictured:
+      label: "Pictured"
+      reverse:
+        name: images
+        label: "Images"
+      type: entity
+      range: Person

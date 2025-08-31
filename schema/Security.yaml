@@ -1,0 +1,59 @@
+Security:
+  extends:
+    - Asset
+  label: Security
+  plural: Securities
+  description: "A tradeable financial asset."
+  matchable: true
+  featured:
+    - isin
+    - name
+    - issuer
+    - country
+  caption:
+    - name
+    - isin
+    - registrationNumber
+  temporalExtent:
+    start:
+      - issueDate
+    end:
+      - maturityDate
+  properties:
+    isin:
+      label: ISIN
+      description: International Securities Identification Number
+      type: identifier
+      format: isin
+      maxLength: 16
+    registrationNumber:
+      label: Registration number
+      type: identifier
+    ticker:
+      label: Stock ticker symbol
+      type: identifier
+    figiCode:
+      label: Financial Instrument Global Identifier
+      type: identifier
+      format: figi
+      maxLength: 16
+    issuer:
+      label: "Issuer"
+      type: entity
+      range: LegalEntity
+      # FIXME: Should this be `Organization`?
+      reverse:
+        label: "Issued securities"
+        name: securities
+    issueDate:
+      label: Date issued
+      type: date
+    maturityDate:
+      label: Maturity date
+      type: date
+    type:
+      label: Type
+    classification:
+      label: Classification
+    collateral:
+      label: Collateral

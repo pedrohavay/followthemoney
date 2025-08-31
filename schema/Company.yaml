@@ -1,0 +1,105 @@
+Company:
+  label: Company
+  plural: Companies
+  description: >
+    A corporation, usually for profit. Does not distinguish between private and public
+    companies, and can also be used to model more specific constructs like trusts and
+    funds. Companies are assets, so they can be owned by other legal entities.
+  matchable: true
+  extends:
+    - Organization
+    - Asset
+  featured:
+    - name
+    - jurisdiction
+    - registrationNumber
+    - incorporationDate
+  required:
+    - name
+  caption:
+    - name
+  properties:
+    jurisdiction:
+      label: Jurisdiction
+      type: country
+    registrationNumber:
+      label: Registration number
+      type: identifier
+    capital:
+      label: "Capital"
+    voenCode:
+      label: "VOEN"
+      description: "Azerbaijan taxpayer ID"
+      type: identifier
+      maxLength: 32
+    coatoCode:
+      label: "COATO / SOATO / OKATO"
+      type: identifier
+      description: "Soviet classifier for territories, regions, districts, villages. Aka. SOATO and same as OKATO"
+      matchable: false
+    irsCode:
+      label: "IRS Number"
+      description: "US tax ID"
+      type: identifier
+    ipoCode:
+      label: "IPO"
+      type: identifier
+      matchable: false
+    cikCode:
+      label: "SEC Central Index Key"
+      description: "US SEC Central Index Key"
+      type: identifier
+    jibCode:
+      label: "JIB"
+      description: "Yugoslavia company ID"
+      type: identifier
+    mbsCode:
+      label: "MBS"
+      type: identifier
+    caemCode:
+      label: "COD CAEM"
+      description: "(RO) What kind of activity a legal entity is allowed to develop"
+      matchable: false
+    kppCode:
+      label: "KPP"
+      description: "(RU, КПП) in addition to INN for orgs; reason for registration at FNS"
+      type: identifier
+      matchable: false
+    okvedCode:
+      label: "OKVED(2) Classifier"
+      description: "(RU, ОКВЭД) Economical activity classifier. OKVED2 is the same but newer"
+      matchable: false
+    okopfCode:
+      label: "OKOPF"
+      description: "(RU, ОКОПФ) What kind of business entity"
+      matchable: false
+    fnsCode:
+      label: "Federal tax service code"
+      description: "(RU, ФНС) Federal Tax Service related info"
+      type: identifier
+      matchable: false
+    fssCode:
+      label: "FSS"
+      description: "(RU, ФСС) Social Security"
+    bikCode:
+      label: "BIK"
+      description: "Russian bank account code"
+    pfrNumber:
+      label: "PFR Number"
+      description: "(RU, ПФР) Pension Fund Registration number. AAA-BBB-CCCCCC, where AAA is organisation region, BBB is district, CCCCCC number at a specific branch"
+      type: identifier
+    oksmCode:
+      label: OKSM
+      description: "Russian (ОКСМ) countries classifier"
+      matchable: false
+    isinCode:
+      label: ISIN
+      description: International Securities Identification Number
+      type: identifier
+    ticker:
+      label: Stock ticker symbol
+      type: identifier
+    ricCode:
+      label: Reuters Instrument Code
+      type: identifier
+      maxLength: 16

@@ -1,0 +1,41 @@
+Directorship:
+  label: "Directorship"
+  plural: "Directorships"
+  extends:
+    - Interest
+  matchable: false
+  featured:
+    - director
+    - organization
+    - role
+    - startDate
+    - endDate
+  required:
+    - director
+    - organization
+  caption:
+    - role
+  edge:
+    source: director
+    label: "directs"
+    target: organization
+    directed: true
+    caption:
+      - role
+  properties:
+    director:
+      label: "Director"
+      reverse:
+        name: directorshipDirector
+        label: "Directorships"
+      type: entity
+      range: LegalEntity
+    organization:
+      label: "Organization"
+      reverse:
+        name: directorshipOrganization
+        label: "Directors"
+      type: entity
+      range: Organization
+    secretary:
+      label: "Secretary"

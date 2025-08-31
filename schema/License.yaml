@@ -1,0 +1,27 @@
+License:
+  label: License
+  plural: Licenses
+  description: "A grant of land, rights or property. A type of Contract"
+  extends:
+    - Contract
+  matchable: false
+  featured:
+    - name
+    - amount
+    - authority
+    - contractDate
+    - commodities
+  required:
+    - name
+    - authority
+  caption:
+    - name
+  properties:
+    area:
+      label: "Area"
+      type: number
+      description: "Spatial area of the license or concession"
+    commodities:
+      label: "Commodities"
+    reviewDate:
+      label: "License review date"

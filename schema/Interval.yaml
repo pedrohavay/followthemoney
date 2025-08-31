@@ -1,0 +1,81 @@
+Interval:
+  # FOR THE LOVE OF ALL THAT IS GOOD AND BEAUTIFUL IN THIS UNVERSE:
+  #
+  # Intervals are not graph edges.
+  #
+  # Yes, many interval child schemata (e.g. Directorship, Ownership) can
+  # be interpreted as an edge between to Things. But that isn't intrinsic.
+  # If you write any code that assumes that Intervals == edges, it will
+  # be buggy and wrong. You will find there are intervals that link to
+  # only one thing (e.g. Sanction) or to much more than two (e.g. FEA).
+  # Just do not do it.
+  label: "Interval"
+  description: >
+    An object which is bounded in time.
+  matchable: false
+  abstract: true
+  temporalExtent:
+    start:
+      - startDate
+      - date
+    end:
+      - endDate
+  properties:
+    startDate:
+      label: "Start date"
+      type: date
+    endDate:
+      label: "End date"
+      type: date
+    date:
+      label: "Date"
+      type: date
+    summary:
+      label: "Summary"
+      type: text
+    description:
+      label: Description
+      type: text
+    recordId:
+      label: "Record ID"
+    sourceUrl:
+      label: "Source link"
+      type: url
+      matchable: false
+    proof:
+      label: Source document
+      reverse:
+        name: provenIntervals
+        label: "Derived relationships"
+      type: entity
+      range: Document
+    publisher:
+      label: "Publishing source"
+    publisherUrl:
+      label: "Publishing source URL"
+      type: url
+      matchable: false
+    alephUrl:
+      label: Aleph URL
+      type: url
+      hidden: true
+      matchable: false
+    namesMentioned:
+      label: "Detected names"
+      hidden: true
+      type: name
+    indexText:
+      # This is a leaked abstraction from aleph. The idea is to have some
+      # additional text field that can be used to associate searchable text
+      # with an entity. This will be removed as a property upon indexing so
+      # that it can never be retrieved.
+      label: Index text
+      hidden: true
+      type: text
+    modifiedAt:
+      label: "Modified on"
+      type: date
+    retrievedAt:
+      label: "Retrieved on"
+      type: date
+      matchable: false

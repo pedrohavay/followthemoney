@@ -1,0 +1,38 @@
+CourtCase:
+  label: Court case
+  plural: Court cases
+  extends:
+    - Thing
+  matchable: false
+  featured:
+    - name
+    - fileDate
+    - caseNumber
+  required:
+    - name
+  caption:
+    - name
+    - caseNumber
+  temporalExtent:
+    start:
+      - fileDate
+    end:
+      - closeDate
+  properties:
+    category:
+      label: Category
+    type:
+      label: Type
+    status:
+      label: Status
+    caseNumber:
+      label: Case number
+      type: identifier
+    court:
+      label: Court
+    fileDate:
+      label: File date
+      type: date
+    closeDate:
+      label: Close date
+      type: date

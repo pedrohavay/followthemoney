@@ -1,0 +1,37 @@
+Debt:
+  label: "Debt"
+  plural: "Debts"
+  description: "A monetary debt between two parties."
+  matchable: false
+  extends:
+    - Interval
+    - Value
+  required:
+    - debtor
+  featured:
+    - debtor
+    - creditor
+    - date
+    - amount
+  edge:
+    source: debtor
+    label: "owes"
+    target: creditor
+    directed: true
+    caption:
+      - amount
+  properties:
+    debtor:
+      label: "Debtor"
+      reverse:
+        name: debtDebtor
+        label: "Debts"
+      type: entity
+      range: LegalEntity
+    creditor:
+      label: "Creditor"
+      reverse:
+        name: debtCreditor
+        label: "Credits"
+      type: entity
+      range: LegalEntity

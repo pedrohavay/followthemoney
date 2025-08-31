@@ -50,36 +50,34 @@ func NewModel(path string) (*Model, error) {
 var defaultModel *Model
 
 func Instance() *Model {
-	var err error
-	if defaultModel == nil {
-		path := os.Getenv("FTM_MODEL_PATH")
-		candidates := []string{}
-		if path != "" {
-			candidates = append(candidates, path)
-		}
-		// try common relative locations from repo layout
-		candidates = append(candidates,
-			filepath.Join("followthemoney", "schema"),
-			filepath.Join("..", "followthemoney", "schema"),
-			filepath.Join("..", "..", "followthemoney", "schema"),
-		)
-		// pick the first existing directory
-		for _, c := range candidates {
-			if st, err := os.Stat(c); err == nil && st.IsDir() {
-				path = c
-				break
-			}
-		}
-		if path == "" {
-			path = filepath.Join("followthemoney", "schema")
-		}
-		defaultModel, err = NewModel(path)
-		if err != nil {
-			// As a fallback, try current directory; otherwise panic to surface configuration error.
-			panic(fmt.Errorf("failed to load FtM model from %s: %w", path, err))
-		}
-	}
-	return defaultModel
+    var err error
+    if defaultModel == nil {
+        path := os.Getenv("FTM_MODEL_PATH")
+        if path == "" {
+            candidates := []string{
+                "schema",
+                filepath.Join("goftm", "schema"),
+                filepath.Join("..", "schema"),
+            }
+            if exe, exErr := os.Executable(); exErr == nil {
+                base := filepath.Dir(exe)
+                candidates = append([]string{filepath.Join(base, "schema")}, candidates...)
+            }
+            for _, c := range candidates {
+                if st, err := os.Stat(c); err == nil && st.IsDir() {
+                    path = c
+                    break
+                }
+            }
+            if path == "" { path = "schema" }
+        }
+        defaultModel, err = NewModel(path)
+        if err != nil {
+            // As a fallback, try current directory; otherwise panic to surface configuration error.
+            panic(fmt.Errorf("failed to load FtM model from %s: %w", path, err))
+        }
+    }
+    return defaultModel
 }
 
 func (m *Model) loadAll() error {

@@ -1,0 +1,117 @@
+Document:
+  extends:
+    - Thing
+    - Analyzable
+  label: File
+  plural: Files
+  matchable: false
+  generated: true
+  featured:
+    - title
+    - fileName
+    - mimeType
+    - parent
+  required:
+    - fileName
+  caption:
+    - fileName
+    - title
+  temporalExtent:
+    start:
+      - date
+      - authoredAt
+      - publishedAt
+  properties:
+    contentHash:
+      label: "Checksum"
+      description: "SHA1 hash of the data"
+      # hidden: true
+      type: checksum
+    title:
+      label: "Title"
+      type: string
+      caption: true
+    author:
+      label: "Author"
+      description: "The original author, not the uploader"
+    generator:
+      label: "Generator"
+      description: "The program used to generate this file"
+    crawler:
+      label: "Crawler"
+      description: "The crawler used to acquire this file"
+    fileSize:
+      label: "File size"
+      type: number
+    fileName:
+      label: "File name"
+    extension:
+      label: "File extension"
+    encoding:
+      label: "File encoding"
+    bodyText:
+      label: "Text"
+      hidden: true
+      type: "text"
+    messageId:
+      label: "Message ID"
+      description: "Message ID of a document; unique in most cases"
+    mimeType:
+      label: "MIME type"
+      type: mimetype
+    language:
+      label: "Language"
+      type: language
+    translatedLanguage:
+      label: "The language of the translated text"
+      hidden: true
+      type: language
+    translatedText:
+      label: "Translated version of the body text"
+      hidden: true
+      type: text
+    date:
+      label: "Date"
+      description: "If not otherwise specified"
+      type: date
+    authoredAt:
+      label: "Authored on"
+      type: date
+      matchable: false
+    publishedAt:
+      label: "Published on"
+      type: date
+      matchable: false
+    parent:
+      label: "Folder"
+      type: entity
+      range: Folder
+      reverse:
+        name: children
+        label: "Child documents"
+        hidden: true
+    ancestors:
+      label: "Ancestors"
+      type: entity
+      hidden: true
+      range: Folder
+      reverse:
+        name: descendants
+        hidden: true
+        label: "Descendants"
+    processingStatus:
+      label: "Processing status"
+      hidden: true
+    processingError:
+      label: "Processing error"
+      hidden: true
+    processingAgent:
+      label: "Processing agent"
+      description: "Name and version of the processing agent used to process the Document"
+      type: string
+    processedAt:
+      label: "Processed at"
+      description: "Date and time of the most recent ingestion of the Document"
+      type: date
+      matchable: false
+      hidden: true

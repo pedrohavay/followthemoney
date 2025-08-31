@@ -1,0 +1,38 @@
+Documentation:
+  label: "Documentation"
+  plural: "Documentations"
+  description: >
+    Links some entity to a document, which might provide further detail or
+    evidence regarding the entity.
+  extends:
+    - Interest
+  matchable: false
+  featured:
+    - document
+    - entity
+    - role
+  required:
+    - document
+    - entity
+  edge:
+    source: document
+    label: "documents"
+    target: entity
+    directed: false
+    caption:
+      - role
+  properties:
+    document:
+      label: "Document"
+      reverse:
+        name: relatedEntities
+        label: "Related entities"
+      type: entity
+      range: Document
+    entity:
+      label: "Entity"
+      reverse:
+        name: documentedBy
+        label: "Documents"
+      type: entity
+      range: Thing

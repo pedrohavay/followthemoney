@@ -1,0 +1,60 @@
+Vessel:
+  label: Vessel
+  plural: Vessels
+  description: >
+    A boat or ship. Typically flying some sort of national flag.
+  extends:
+    - Vehicle
+  matchable: true
+  featured:
+    - name
+    - imoNumber
+    - type
+    - flag
+  required:
+    - name
+  caption:
+    - name
+    - imoNumber
+  properties:
+    imoNumber:
+      label: IMO Number
+      type: identifier
+      format: imo
+      maxLength: 16
+    crsNumber:
+      label: CRS Number
+      type: identifier
+    flag:
+      label: Flag
+      type: country
+    registrationPort:
+      label: Port of Registration
+    navigationArea:
+      label: Navigation Area
+    tonnage:
+      label: Tonnage
+      type: number
+    grossRegisteredTonnage:
+      label: Gross Registered Tonnage
+      type: number
+    deadweightTonnage:
+      label: Deadweight Tonnage
+      type: number
+    nameChangeDate:
+      label: Date of Name Change
+      type: date
+    callSign:
+      label: Call Sign
+      type: identifier
+    pastFlags:
+      label: Past Flags
+      type: country
+    pastTypes:
+      label: Past Types
+    #buildDate:
+    #  label: Build Date
+    mmsi:
+      label: MMSI
+      type: identifier
+      maxLength: 16

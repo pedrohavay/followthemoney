@@ -1,0 +1,69 @@
+ContractAward:
+  label: "Contract award"
+  plural: "Contract awards"
+  description: "A contract or contract lot as awarded to a supplier."
+  matchable: false
+  extends:
+    - Value
+    - Interest
+  required:
+    - supplier
+    - contract
+  featured:
+    - supplier
+    - contract
+    - amount
+    - lotNumber
+    - decisionReason
+  edge:
+    source: contract
+    label: "awarded to"
+    target: supplier
+    directed: true
+    caption:
+      - lotNumber
+  properties:
+    supplier:
+      label: "Supplier"
+      description: "The entity the contract was awarded to"
+      plural: "Suppliers"
+      reverse:
+        name: contractAwardSupplier
+        label: "Contracts awarded"
+      type: entity
+      range: LegalEntity
+    contract:
+      label: "Contract"
+      plural: "Contracts"
+      reverse:
+        name: awards
+        label: "Lots awarded"
+      type: entity
+      range: Contract
+    callForTenders:
+      label: "Call For Tenders"
+      type: entity
+      reverse:
+        name: contractAwards
+        label: "Contract Awards"
+      range: CallForTenders
+    lotNumber:
+      label: "Lot number"
+    documentNumber:
+      label: "Document number"
+    documentType:
+      label: "Document type"
+    decisionReason:
+      label: "Decision reason"
+      type: text
+    cpvCode:
+      label: "CPV code"
+      description: "Contract Procurement Vocabulary (what type of goods/services, EU)"
+      type: identifier
+    nutsCode:
+      label: "NUTS code"
+      description: "Nomencalture of Territorial Units for Statistics (NUTS)"
+      type: identifier
+    amended:
+      label: "Amended"
+      description: "Was this award amended, modified or updated by a subsequent document?"

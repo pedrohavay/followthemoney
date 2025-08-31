@@ -1,0 +1,35 @@
+CourtCaseParty:
+  label: "Case party"
+  plural: "Case parties"
+  extends:
+    - Interest
+  matchable: false
+  featured:
+    - party
+    - case
+    - role
+  required:
+    - case
+    - party
+  edge:
+    source: party
+    label: "involved in"
+    target: case
+    directed: true
+    caption:
+      - role
+  properties:
+    party:
+      label: "Party"
+      reverse:
+        name: courtCase
+        label: "Court cases"
+      type: entity
+      range: Thing
+    case:
+      label: "Case"
+      reverse:
+        name: parties
+        label: "Parties"
+      type: entity
+      range: CourtCase

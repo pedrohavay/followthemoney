@@ -1,0 +1,27 @@
+Airplane:
+  label: Airplane
+  plural: Airplanes
+  extends:
+    - Vehicle
+  description: >
+    An airplane, helicopter or other flying vehicle.
+  matchable: true
+  featured:
+    - type # Airbus A320 214SL
+    - registrationNumber # A7-LAE
+    - country # Qatar
+    - operator # Qatar Airways
+    - owner # Qatar Airways
+  caption:
+    - name
+    - registrationNumber
+  properties:
+    serialNumber: # 36576093870
+      label: Serial Number
+      type: identifier
+    icaoCode: # A320
+      label: ICAO aircraft type designator
+      type: identifier
+      maxLength: 16
+    manufacturer: # Airbus
+      label: Manufacturer

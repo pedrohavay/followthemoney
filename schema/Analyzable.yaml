@@ -1,0 +1,53 @@
+Analyzable:
+  label: Analyzable
+  plural: Analyzables
+  description: >
+    An entity suitable for being processed via named-entity recognition.
+  abstract: true
+  matchable: false
+  generated: true
+  properties:
+    detectedLanguage:
+      label: "Detected language"
+      matchable: false
+      hidden: true
+      type: language
+    detectedCountry:
+      label: "Detected country"
+      matchable: false
+      hidden: true
+      type: country
+    namesMentioned:
+      label: "Detected names"
+      hidden: true
+      type: name
+    peopleMentioned:
+      label: "Detected people"
+      hidden: true
+      type: name
+    companiesMentioned:
+      label: "Detected companies"
+      hidden: true
+      type: name
+    ibanMentioned:
+      label: "Detected IBANs"
+      hidden: true
+      type: identifier
+      format: iban
+    ipMentioned:
+      label: "Detected IP addresses"
+      hidden: true
+      type: ip
+    locationMentioned:
+      label: "Detected locations"
+      hidden: true
+      matchable: false
+      type: address
+    phoneMentioned:
+      label: "Detected phones"
+      hidden: true
+      type: phone
+    emailMentioned:
+      label: "Detected e-mail addresses"
+      hidden: true
+      type: email

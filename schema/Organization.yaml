@@ -1,0 +1,41 @@
+Organization:
+  extends:
+    - LegalEntity
+  label: Organization
+  plural: Organizations
+  description: >
+    Any type of incorporated entity that cannot be owned by another (see Company). This
+    might include charities, foundations or state-owned enterprises, depending on their
+    jurisdiction.
+  matchable: true
+  featured:
+    - name
+    - country
+    - legalForm
+    - status
+  required:
+    - name
+  caption:
+    - name
+  properties:
+    cageCode:
+      label: CAGE
+      description: Commercial and Government Entity Code (CAGE)
+      type: identifier
+      maxLength: 16
+    permId:
+      label: PermID
+      description: LSEG/Refinitiv code for a company
+      type: identifier
+      maxLength: 16
+    imoNumber:
+      label: IMO Number
+      type: identifier
+      format: imo
+      maxLength: 16
+    giiNumber:
+      # cf. https://www.irs.gov/businesses/corporations/fatca-registration-and-ffi-list-giin-composition-information
+      label: GIIN
+      description: Global Intermediary Identification Number
+      type: identifier
+      maxLength: 20

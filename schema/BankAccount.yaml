@@ -1,0 +1,69 @@
+BankAccount:
+  label: Bank account
+  plural: Bank accounts
+  extends:
+    - Asset
+  description: >
+    An account held at a bank and controlled by an owner. This may also be used
+    to describe more complex arrangements like correspondent bank settlement accounts.
+  matchable: true
+  featured:
+    - accountNumber
+    - bankName
+  # required:
+  # - accountNumber
+  caption:
+    - name
+    - iban
+    - accountNumber
+  temporalExtent:
+    start:
+      - openingDate
+    end:
+      - closingDate
+  properties:
+    bankName:
+      label: Bank name
+    accountNumber:
+      label: Account number
+      type: identifier
+      maxLength: 64
+    iban:
+      label: IBAN
+      type: identifier
+      format: iban
+      maxLength: 64
+    bic:
+      label: Bank Identifier Code
+      type: identifier
+      format: bic
+      maxLength: 16
+    bank:
+      label: Bank
+      type: entity
+      range: Organization
+      reverse:
+        name: bankAccounts
+        label: "Bank accounts"
+    accountType:
+      label: Account type
+    openingDate:
+      label: Opening date
+      type: date
+    closingDate:
+      label: Closing date
+      type: date
+    balance:
+      label: Balance
+      type: number
+    balanceDate:
+      label: Balance date
+      type: date
+    maxBalance:
+      label: Maximum balance
+      type: number
+    maxBalanceDate:
+      label: Maximum balance date
+      type: date
+    bankAddress:
+      label: Bank address

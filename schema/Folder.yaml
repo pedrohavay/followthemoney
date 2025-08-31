@@ -1,0 +1,13 @@
+Folder:
+  extends:
+    - Document
+  label: Folder
+  plural: Folders
+  matchable: false
+  generated: true
+  featured:
+    - title
+    - parent
+  caption:
+    - fileName
+    - title

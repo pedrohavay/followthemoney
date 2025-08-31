@@ -1,0 +1,52 @@
+Ownership:
+  label: "Ownership"
+  plural: "Ownerships"
+  extends:
+    - Interest
+  matchable: false
+  featured:
+    - owner
+    - asset
+    - percentage
+    - startDate
+    - endDate
+  required:
+    - owner
+    - asset
+  edge: # OWNER owns ASSET
+    source: owner
+    label: "owns"
+    target: asset
+    directed: true
+    caption:
+      - percentage
+  properties:
+    owner:
+      label: "Owner"
+      reverse:
+        name: ownershipOwner
+        label: "Assets and shares"
+      type: entity
+      range: LegalEntity
+    asset:
+      label: "Asset"
+      reverse:
+        name: ownershipAsset
+        label: "Owners"
+      type: entity
+      range: Asset
+    percentage:
+      label: "Percentage held"
+    sharesCount:
+      label: "Number of shares"
+    sharesValue:
+      label: "Value of shares"
+    sharesCurrency:
+      label: "Currency of shares"
+    sharesType:
+      label: "Type of shares"
+    legalBasis:
+      label: "Legal basis"
+    ownershipType:
+      label: "Type of ownership"
+      # e.g. "beneficial", "direct", "indirect", "ultimate"

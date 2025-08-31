@@ -1,0 +1,54 @@
+Mention:
+  label: Mention
+  plural: Mentions
+  abstract: false
+  matchable: false
+  generated: true
+  hidden: true
+  featured:
+    - document
+    - name
+    - resolved
+  required:
+    - document
+    - name
+  caption:
+    - name
+  properties:
+    document:
+      label: "Document"
+      reverse:
+        name: mentionedEntities
+        label: "Extracted names"
+        hidden: true
+      type: entity
+      range: Document
+    resolved:
+      label: "Entity"
+      reverse:
+        name: mentionedBy
+        label: "Document mentions"
+      type: entity
+      range: LegalEntity
+    name:
+      label: "Name"
+      type: name
+    detectedSchema:
+      label: "Detected entity type"
+      hidden: true
+      matchable: false
+    contextCountry:
+      label: "Co-occurring countries"
+      hidden: true
+      type: country
+      matchable: false
+    contextPhone:
+      label: "Co-occurring phone numbers"
+      hidden: true
+      type: phone
+      matchable: false
+    contextEmail:
+      label: "Co-occurring e-mail addresses"
+      hidden: true
+      type: email
+      matchable: false

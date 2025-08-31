@@ -1,0 +1,41 @@
+Associate:
+  label: "Associate"
+  plural: "Associates"
+  description: "Non-family association between two people"
+  extends:
+    - Interval
+  matchable: false
+  featured:
+    - person
+    - associate
+    - relationship
+  required:
+    - person
+    - associate
+  edge:
+    source: person
+    label: "associated with"
+    target: associate
+    directed: false
+    caption:
+      - relationship
+  properties:
+    person:
+      label: "Person"
+      description: "The subject of the association."
+      type: entity
+      range: Person
+      reverse:
+        name: associates
+        label: "Associates"
+    associate:
+      label: "Associate"
+      description: "An associate of the subject person."
+      type: entity
+      range: Person
+      reverse:
+        name: associations
+        label: "Associations"
+    relationship:
+      label: "Relationship"
+      description: "Nature of the association"

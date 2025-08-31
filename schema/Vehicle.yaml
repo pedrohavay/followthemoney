@@ -1,0 +1,54 @@
+Vehicle:
+  label: Vehicle
+  plural: Vehicles
+  extends:
+    - Asset
+  matchable: false
+  featured:
+    - type
+    - name
+    - registrationNumber
+    - country
+    - owner
+  caption:
+    - name
+    - registrationNumber
+  temporalExtent:
+    start:
+      - buildDate
+      - registrationDate
+    end:
+      - deregistrationDate
+  properties:
+    registrationNumber:
+      label: Registration number
+      type: identifier
+    type:
+      label: Type
+    model:
+      label: Model
+    owner:
+      # Use `Ownership` link instead.
+      deprecated: true
+      label: Owner
+      type: entity
+      range: LegalEntity
+      reverse:
+        name: ownedVehicles
+        label: "Vehicles owned"
+    operator:
+      label: Operator
+      type: entity
+      range: LegalEntity
+      reverse:
+        name: operatedVehicles
+        label: "Vehicles operated"
+    buildDate:
+      label: Build Date
+      type: date
+    registrationDate:
+      label: Registration Date
+      type: date
+    deregistrationDate:
+      label: De-registration Date
+      type: date

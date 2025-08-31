@@ -1,0 +1,40 @@
+TaxRoll:
+  label: "Tax roll"
+  plural: "Tax rolls"
+  description: "A tax declaration of an individual"
+  extends:
+    - Interval
+  icon: fa-bank
+  matchable: false
+  featured:
+    - taxee
+    - date
+    - income
+    - wealth
+    - taxPaid
+  required:
+    - taxee
+  properties:
+    taxee:
+      label: "Taxee"
+      type: entity
+      range: LegalEntity
+      reverse:
+        name: taxRolls
+        label: "Tax rolls"
+    country:
+      label: "Country"
+      type: country
+    surname:
+      label: "Surname"
+    givenName:
+      label: "Given name"
+    birthDate:
+      label: "Birth date"
+      type: date
+    income:
+      label: "Registered income"
+    taxPaid:
+      label: "Amount of tax paid"
+    wealth:
+      label: "Registered wealth"

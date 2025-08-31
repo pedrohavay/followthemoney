@@ -1,0 +1,61 @@
+Sanction:
+  label: Sanction
+  plural: Sanctions
+  description: "A sanction designation"
+  extends:
+    - Interval
+  matchable: false
+  featured:
+    - entity
+    - country
+    - authority
+    - program
+    - startDate
+  required:
+    - entity
+  caption:
+    - program
+  properties:
+    entity:
+      label: "Entity"
+      reverse:
+        name: sanctions
+        label: "Sanctions"
+      type: entity
+      range: Thing
+    authority:
+      label: "Authority"
+    authorityId:
+      label: "Authority-issued identifier"
+      type: identifier
+    unscId:
+      label: "UN SC identifier"
+      type: identifier
+      maxLength: 16
+    program:
+      label: "Program"
+    programId:
+      # This is a unique identifier for the program issued by OpenSanctions, but
+      # could also be used for authority-issued IDs in other usage scenarios.
+      label: "Program ID"
+      type: identifier
+      maxLength: 64
+    programUrl:
+      label: "Program URL"
+      type: url
+    provisions:
+      label: "Scope of sanctions"
+    status:
+      label: "Status"
+    duration:
+      label: "Duration"
+      type: number
+    reason:
+      label: "Reason"
+      type: text
+    country:
+      label: "Country"
+      type: country
+    listingDate:
+      label: "Listing date"
+      type: date

@@ -1,0 +1,70 @@
+Contract:
+  label: "Contract"
+  plural: "Contracts"
+  description: >
+    An contract or contract lot issued by an authority. Multiple lots
+    may be awarded to different suppliers (see ContractAward).
+  extends:
+    - Asset
+  matchable: false
+  featured:
+    - title
+    - amount
+    - authority
+    - contractDate
+  required:
+    - title
+  caption:
+    - title
+    - name
+    - procedureNumber
+  temporalExtent:
+    start:
+      - contractDate
+  properties:
+    title:
+      label: "Title"
+      type: string
+    authority:
+      label: "Contract authority"
+      plural: "Contract authorities"
+      reverse:
+        name: contractAuthority
+        label: "Contracts issued"
+      type: entity
+      range: LegalEntity
+    project:
+      label: "Project"
+      reverse:
+        name: contracts
+        label: "Contracts"
+      type: entity
+      range: Project
+    type:
+      label: "Type"
+      description: >
+        Type of contract. Potentially W (Works), U (Supplies), S (Services).
+    contractDate:
+      label: "Contract date"
+      type: date
+    procedureNumber:
+      label: "Procedure number"
+    procedure:
+      label: "Contract procedure"
+    noticeId:
+      label: "Contract Award Notice ID"
+    numberAwards:
+      label: "Number of awards"
+    status:
+      label: "Status"
+    method:
+      label: "Procurement method"
+    criteria:
+      label: Contract award criteria
+    classification:
+      label: Classification
+    cancelled:
+      label: "Cancelled?"
+    language:
+      label: "Language"
+      type: language

@@ -1,0 +1,81 @@
+Payment:
+  label: "Payment"
+  plural: "Payments"
+  description: "A monetary payment between two parties."
+  matchable: false
+  extends:
+    - Interval
+    - Value
+  featured:
+    - payer
+    - beneficiary
+    - date
+    - amount
+    - purpose
+  required:
+    - payer
+    - beneficiary
+  caption:
+    - amount
+  edge:
+    source: payer
+    label: "paid"
+    target: beneficiary
+    directed: true
+    caption:
+      - amount
+      - date
+      - purpose
+  properties:
+    sequenceNumber:
+      label: "Sequence number"
+    transactionNumber:
+      label: "Transaction number"
+    purpose:
+      label: "Payment purpose"
+      type: text
+    programme:
+      label: "Payment programme"
+      description: "Programme name, funding code, category identifier, etc."
+    payer:
+      label: "Payer"
+      reverse:
+        name: paymentPayer
+        label: "Payments made"
+      type: entity
+      range: LegalEntity
+    payerAccount:
+      label: "Payer bank account"
+      reverse:
+        name: paymentPayerAccount
+        label: "Payments made"
+      type: entity
+      range: BankAccount
+    beneficiary:
+      label: "Beneficiary"
+      reverse:
+        name: paymentBeneficiary
+        label: "Payments received"
+      type: entity
+      range: LegalEntity
+    beneficiaryAccount:
+      label: "Beneficiary bank account"
+      reverse:
+        name: paymentBeneficiaryAccount
+        label: "Payments received"
+      type: entity
+      range: BankAccount
+    contract:
+      label: "Contract"
+      reverse:
+        name: paymentContract
+        label: "Contractual payments"
+      type: entity
+      range: Contract
+    project:
+      label: "Project"
+      reverse:
+        name: payments
+        label: "Payments"
+      type: entity
+      range: Project
