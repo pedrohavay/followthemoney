@@ -1,9 +1,9 @@
 package ftm
 
 import (
-    "net/url"
-    "sort"
-    "strings"
+	"net/url"
+	"sort"
+	"strings"
 )
 
 // URLType validates URLs and normalizes.
@@ -49,36 +49,44 @@ func (t *URLType) Clean(text string, _ bool, _ string, _ *EntityProxy) (string, 
 func (t *URLType) NodeID(value string) (string, bool) { return "url:" + value, true }
 
 func normalizeURL(s string) (*url.URL, bool) {
-    u, err := url.Parse(s)
-    if err != nil || u.Scheme == "" {
-        u, err = url.Parse("http://" + s)
-        if err != nil { return nil, false }
-    }
-    u.Host = strings.ToLower(u.Host)
-    // normalize query: sort parameters
-    if u.RawQuery != "" {
-        q := u.Query()
-        keys := make([]string, 0, len(q))
-        for k := range q { keys = append(keys, k) }
-        sort.Strings(keys)
-        nq := url.Values{}
-        for _, k := range keys {
-            vals := q[k]
-            sort.Strings(vals)
-            for _, v := range vals { nq.Add(k, v) }
-        }
-        u.RawQuery = nq.Encode()
-    }
-    u.Fragment = ""
-    return u, true
+	u, err := url.Parse(s)
+	if err != nil || u.Scheme == "" {
+		u, err = url.Parse("http://" + s)
+		if err != nil {
+			return nil, false
+		}
+	}
+	u.Host = strings.ToLower(u.Host)
+	// normalize query: sort parameters
+	if u.RawQuery != "" {
+		q := u.Query()
+		keys := make([]string, 0, len(q))
+		for k := range q {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		nq := url.Values{}
+		for _, k := range keys {
+			vals := q[k]
+			sort.Strings(vals)
+			for _, v := range vals {
+				nq.Add(k, v)
+			}
+		}
+		u.RawQuery = nq.Encode()
+	}
+	u.Fragment = ""
+	return u, true
 }
 func (t *URLType) Compare(left, right string) float64 {
-    l, ok1 := normalizeURL(left)
-    r, ok2 := normalizeURL(right)
-    if !ok1 || !ok2 { return 0 }
-    // Compare significant parts
-    if l.Scheme == r.Scheme && l.Host == r.Host && strings.TrimSuffix(l.Path, "/") == strings.TrimSuffix(r.Path, "/") && l.RawQuery == r.RawQuery {
-        return 1.0 * t.Specificity(l.String())
-    }
-    return 0.0
+	l, ok1 := normalizeURL(left)
+	r, ok2 := normalizeURL(right)
+	if !ok1 || !ok2 {
+		return 0
+	}
+	// Compare significant parts
+	if l.Scheme == r.Scheme && l.Host == r.Host && strings.TrimSuffix(l.Path, "/") == strings.TrimSuffix(r.Path, "/") && l.RawQuery == r.RawQuery {
+		return 1.0 * t.Specificity(l.String())
+	}
+	return 0.0
 }

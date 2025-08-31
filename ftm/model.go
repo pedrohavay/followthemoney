@@ -52,19 +52,19 @@ func NewModel(path string) (*Model, error) {
 var defaultModel *Model
 
 func Default() *Model {
-    var err error
-    if defaultModel == nil {
-        path := os.Getenv("FTM_MODEL_PATH")
-        if path == "" {
-            path = "schema"
-        }
-        defaultModel, err = NewModel(path)
-        if err != nil {
-            // As a fallback, try current directory; otherwise panic to surface configuration error.
-            panic(fmt.Errorf("failed to load FtM model from %s: %w", path, err))
-        }
-    }
-    return defaultModel
+	var err error
+	if defaultModel == nil {
+		path := os.Getenv("FTM_MODEL_PATH")
+		if path == "" {
+			path = "schema"
+		}
+		defaultModel, err = NewModel(path)
+		if err != nil {
+			// As a fallback, try current directory; otherwise panic to surface configuration error.
+			panic(fmt.Errorf("failed to load FtM model from %s: %w", path, err))
+		}
+	}
+	return defaultModel
 }
 
 func (m *Model) loadAll() error {

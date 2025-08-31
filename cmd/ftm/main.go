@@ -47,10 +47,10 @@ func usage() {
 }
 
 func dumpModel() {
-    _ = ftm.Default() // ensure model loads
+	_ = ftm.Default() // ensure model loads
 	// Compact metadata: schemata names list and property qnames
 	out := map[string]any{"schemata": map[string]any{}, "types": []string{"string", "text", "name", "date", "number", "url", "country", "entity"}}
-    for name, sc := range ftm.Default().Schemata {
+	for name, sc := range ftm.Default().Schemata {
 		props := map[string]any{}
 		for n, p := range sc.Properties {
 			props[n] = map[string]any{"name": p.Name, "qname": p.QName, "type": p.Type.Name(), "label": p.Label}
@@ -82,7 +82,7 @@ type entityJSON struct {
 }
 
 func validate() {
-    m := ftm.Default()
+	m := ftm.Default()
 	br := bufio.NewReader(os.Stdin)
 	bw := bufio.NewWriter(os.Stdout)
 	defer bw.Flush()
@@ -133,7 +133,7 @@ func sign() {
 	key := fs.String("key", "", "HMAC signature key")
 	_ = fs.Parse(os.Args[2:])
 	ns := ftm.NewNamespace(*key)
-    m := ftm.Default()
+	m := ftm.Default()
 	dec := json.NewDecoder(os.Stdin)
 	enc := json.NewEncoder(os.Stdout)
 	for {

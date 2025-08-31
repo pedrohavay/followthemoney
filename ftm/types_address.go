@@ -1,9 +1,10 @@
 package ftm
 
 import (
-    "regexp"
-    "strings"
-    levenshtein "github.com/agnivade/levenshtein"
+	"regexp"
+	"strings"
+
+	levenshtein "github.com/agnivade/levenshtein"
 )
 
 // AddressType normalizes lines/commas and collapses spaces.
@@ -47,15 +48,25 @@ func (t *AddressType) NodeID(value string) (string, bool) {
 }
 
 func (t *AddressType) Compare(left, right string) float64 {
-    l, lok := t.Clean(left, false, "", nil)
-    r, rok := t.Clean(right, false, "", nil)
-    if !lok || !rok { return 0 }
-    dist := levenshtein.ComputeDistance(l, r)
-    if dist > 3 { return 0 }
-    maxlen := len(l)
-    if len(r) > maxlen { maxlen = len(r) }
-    if maxlen == 0 { return 0 }
-    sim := 1.0 - float64(dist)/float64(maxlen)
-    if sim < 0 { return 0 }
-    return sim
+	l, lok := t.Clean(left, false, "", nil)
+	r, rok := t.Clean(right, false, "", nil)
+	if !lok || !rok {
+		return 0
+	}
+	dist := levenshtein.ComputeDistance(l, r)
+	if dist > 3 {
+		return 0
+	}
+	maxlen := len(l)
+	if len(r) > maxlen {
+		maxlen = len(r)
+	}
+	if maxlen == 0 {
+		return 0
+	}
+	sim := 1.0 - float64(dist)/float64(maxlen)
+	if sim < 0 {
+		return 0
+	}
+	return sim
 }
