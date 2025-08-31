@@ -1,5 +1,7 @@
 package ftm
 
+import "strings"
+
 // PropertyType defines behavior for a value type.
 // Implementations should be stateless and reusable.
 type PropertyType interface {
@@ -16,7 +18,10 @@ type PropertyType interface {
 	Specificity(value string) float64
 	Caption(value string, format string) string
 	NodeID(value string) (string, bool)
-	CountryHint(value string) (string, bool)
+    CountryHint(value string) (string, bool)
+
+    Compare(left, right string) float64
+    CompareSets(left, right []string) float64
 }
 
 // BaseType offers default implementations.
@@ -37,7 +42,25 @@ func (b BaseType) Matchable() bool                       { return b.matchable }
 func (b BaseType) Pivot() bool                           { return b.pivot }
 func (b BaseType) MaxLength() int                        { return b.maxLength }
 func (b BaseType) TotalSize() int                        { return b.totalSize }
-func (b BaseType) Specificity(string) float64            { return 0.0 }
+func (b BaseType) Specificity(string) float64            { return 1.0 }
 func (b BaseType) Caption(value string, _ string) string { return value }
 func (b BaseType) NodeID(value string) (string, bool)    { return b.name + ":" + value, true }
 func (b BaseType) CountryHint(string) (string, bool)     { return "", false }
+func (b BaseType) Compare(left, right string) float64 {
+    if strings.EqualFold(left, right) {
+        return 1.0 * b.Specificity(left)
+    }
+    return 0.0
+}
+func (b BaseType) CompareSets(left, right []string) float64 {
+    best := 0.0
+    for _, l := range left {
+        for _, r := range right {
+            s := b.Compare(l, r)
+            if s > best {
+                best = s
+            }
+        }
+    }
+    return best
+}

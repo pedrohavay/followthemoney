@@ -5,6 +5,7 @@ go 1.23.0
 toolchain go1.24.6
 
 require (
+	github.com/agnivade/levenshtein v1.2.1
 	github.com/nyaruka/phonenumbers v1.6.5
 	golang.org/x/net v0.43.0
 	gopkg.in/yaml.v3 v3.0.1

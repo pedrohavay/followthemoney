@@ -116,6 +116,19 @@ func (t *IdentifierType) Specificity(value string) float64 {
 }
 func (t *IdentifierType) NodeID(value string) (string, bool)         { return "id:" + value, true }
 func (t *IdentifierType) Caption(value string, format string) string { return value }
+func (t *IdentifierType) Compare(left, right string) float64 {
+    clean := func(s string) string { return strings.ToLower(regexp.MustCompile(`[\W_]+`).ReplaceAllString(s, "")) }
+    l := clean(left)
+    r := clean(right)
+    if l == r { return 1.0 }
+    if strings.Contains(l, r) || strings.Contains(r, l) {
+        a, b := len(l), len(r)
+        if a > b { a, b = b, a }
+        if b == 0 { return 0 }
+        return float64(a) / float64(b)
+    }
+    return 0.0
+}
 
 func normalizeIBAN(s string) string {
 	s = strings.ToUpper(strings.ReplaceAll(s, " ", ""))

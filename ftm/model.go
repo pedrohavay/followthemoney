@@ -48,40 +48,23 @@ func NewModel(path string) (*Model, error) {
 	return m, nil
 }
 
-// Instance returns a singleton model, loading from env FTM_MODEL_PATH or ./followthemoney/schema.
+// Instance returns a singleton model, loading from env FTM_MODEL_PATH or default schemas.
 var defaultModel *Model
 
-func Instance() *Model {
-	var err error
-	if defaultModel == nil {
-		path := os.Getenv("FTM_MODEL_PATH")
-		if path == "" {
-			candidates := []string{
-				"schema",
-				filepath.Join("goftm", "schema"),
-				filepath.Join("..", "schema"),
-			}
-			if exe, exErr := os.Executable(); exErr == nil {
-				base := filepath.Dir(exe)
-				candidates = append([]string{filepath.Join(base, "schema")}, candidates...)
-			}
-			for _, c := range candidates {
-				if st, err := os.Stat(c); err == nil && st.IsDir() {
-					path = c
-					break
-				}
-			}
-			if path == "" {
-				path = "schema"
-			}
-		}
-		defaultModel, err = NewModel(path)
-		if err != nil {
-			// As a fallback, try current directory; otherwise panic to surface configuration error.
-			panic(fmt.Errorf("failed to load FtM model from %s: %w", path, err))
-		}
-	}
-	return defaultModel
+func Default() *Model {
+    var err error
+    if defaultModel == nil {
+        path := os.Getenv("FTM_MODEL_PATH")
+        if path == "" {
+            path = "schema"
+        }
+        defaultModel, err = NewModel(path)
+        if err != nil {
+            // As a fallback, try current directory; otherwise panic to surface configuration error.
+            panic(fmt.Errorf("failed to load FtM model from %s: %w", path, err))
+        }
+    }
+    return defaultModel
 }
 
 func (m *Model) loadAll() error {
@@ -146,7 +129,7 @@ func (m *Model) loadAll() error {
 			m.extendsIndex[child] = append(m.extendsIndex[child], parent)
 		}
 	}
-    return nil
+	return nil
 }
 
 // Generate resolves cross-references and inheritance.
@@ -182,13 +165,3 @@ func (m *Model) CommonSchema(left, right *Schema) (*Schema, error) {
 }
 
 func (m *Model) Get(name string) *Schema { return m.Schemata[name] }
-
-// DefaultModel is the default, package-level instance of the FtM model.
-// It loads schemata from the local "schema" folder by default, or from
-// the path specified via the FTM_MODEL_PATH environment variable.
-//
-// You can override it in your application by assigning a custom instance:
-//
-//	m, _ := ftm.NewModel("/path/to/schema")
-//	ftm.DefaultModel = m
-var DefaultModel = Instance()
