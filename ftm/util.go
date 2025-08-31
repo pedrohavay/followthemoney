@@ -3,7 +3,6 @@ package ftm
 import (
 	"crypto/sha1"
 	"encoding/hex"
-	"regexp"
 	"sort"
 	"strings"
 	"unicode"
@@ -100,6 +99,4 @@ func shortest(values ...string) string {
 	return nonEmpty[0]
 }
 
-var isoDateFull = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
-var isoDateMonth = regexp.MustCompile(`^\d{4}-\d{2}$`)
-var isoDateYear = regexp.MustCompile(`^\d{4}$`)
+// date regexes moved to types_date.go
