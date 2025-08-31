@@ -3,6 +3,7 @@ package ftm
 import (
 	"bytes"
 	"sort"
+	"strings"
 	"testing"
 )
 
@@ -75,5 +76,75 @@ func TestAggregateCanonicalIDCollapse(t *testing.T) {
 	}
 	if es[0].ID != "X" {
 		t.Fatalf("expected canonical id 'X', got %s", es[0].ID)
+	}
+}
+
+func TestStatementsCSVAndMsgpackRoundTrip(t *testing.T) {
+	m, err := NewModel("../schema")
+	if err != nil {
+		t.Fatalf("NewModel: %v", err)
+	}
+	sc := m.Get("Person")
+	if sc == nil {
+		t.Skip("Person schema not found")
+	}
+	e := NewEntityProxy(sc, "p2")
+	_ = e.Add("name", []string{"Maria"}, false, "")
+	_ = e.Add("nationality", []string{"br"}, false, "")
+	st := StatementsFromEntity(e, "ds2", "2025-01-01", "", false, "test")
+
+	// CSV write/read
+	csvbuf := bytes.Buffer{}
+	if err := WriteStatementsCSV(&csvbuf, st); err != nil {
+		t.Fatalf("write csv: %v", err)
+	}
+	var backCSV []Statement
+	if err := ReadStatementsCSV(strings.NewReader(csvbuf.String()), func(s Statement) error { backCSV = append(backCSV, s); return nil }); err != nil {
+		t.Fatalf("read csv: %v", err)
+	}
+	if len(backCSV) != len(st) {
+		t.Fatalf("csv round-trip length mismatch: %d vs %d", len(backCSV), len(st))
+	}
+
+	// Msgpack write/read
+	mpbuf := bytes.Buffer{}
+	if err := WriteStatementsMsgpack(&mpbuf, st); err != nil {
+		t.Fatalf("write msgpack: %v", err)
+	}
+	var backMP []Statement
+	if err := ReadStatementsMsgpack(&mpbuf, func(s Statement) error { backMP = append(backMP, s); return nil }); err != nil {
+		t.Fatalf("read msgpack: %v", err)
+	}
+	if len(backMP) != len(st) {
+		t.Fatalf("msgpack round-trip length mismatch: %d vs %d", len(backMP), len(st))
+	}
+}
+
+func TestStatementAggregatorStream(t *testing.T) {
+	m, err := NewModel("../schema")
+	if err != nil {
+		t.Fatalf("NewModel: %v", err)
+	}
+	st := []Statement{
+		{EntityID: "a", CanonicalID: "a", Prop: BaseID, Schema: "Person", Value: "a", Dataset: "ds"},
+		{EntityID: "a", CanonicalID: "a", Prop: "name", Schema: "Person", Value: "Ana", Dataset: "ds"},
+		{EntityID: "b", CanonicalID: "b", Prop: BaseID, Schema: "Person", Value: "b", Dataset: "ds"},
+		{EntityID: "b", CanonicalID: "b", Prop: "name", Schema: "Person", Value: "Bob", Dataset: "ds"},
+	}
+	for i := range st {
+		st[i].MakeKey()
+	}
+	agg := NewStatementAggregator(m)
+	var out []*EntityProxy
+	for i := range st {
+		if ent := agg.Add(st[i]); ent != nil {
+			out = append(out, ent)
+		}
+	}
+	if ent := agg.Flush(); ent != nil {
+		out = append(out, ent)
+	}
+	if len(out) != 2 {
+		t.Fatalf("expected 2 entities, got %d", len(out))
 	}
 }

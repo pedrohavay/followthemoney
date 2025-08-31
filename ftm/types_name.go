@@ -1,9 +1,10 @@
 package ftm
 
 import (
-	levenshtein "github.com/agnivade/levenshtein"
 	"regexp"
 	"strings"
+
+	"github.com/agnivade/levenshtein"
 )
 
 // NameType simplifies personal/corporate names.
@@ -45,14 +46,14 @@ func similarity(a, b string) float64 {
 		return 0
 	}
 	dist := levenshtein.ComputeDistance(a, b)
-	maxlen := len(a)
-	if len(b) > maxlen {
-		maxlen = len(b)
+	maxLen := len(a)
+	if len(b) > maxLen {
+		maxLen = len(b)
 	}
-	if maxlen == 0 {
+	if maxLen == 0 {
 		return 0
 	}
-	sim := 1.0 - float64(dist)/float64(maxlen)
+	sim := 1.0 - float64(dist)/float64(maxLen)
 	if sim < 0 {
 		return 0
 	}

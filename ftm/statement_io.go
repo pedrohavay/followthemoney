@@ -5,6 +5,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"io"
+	"strconv"
 )
 
 // WriteStatementsJSONL writes statements as JSON lines.
@@ -80,4 +81,58 @@ func WriteStatementsCSV(w io.Writer, st []Statement) error {
 	}
 	cw.Flush()
 	return cw.Error()
+}
+
+// ReadStatementsCSV reads statements from a CSV reader with the same header as WriteStatementsCSV
+// and calls fn for each parsed statement.
+func ReadStatementsCSV(r io.Reader, fn func(Statement) error) error {
+	cr := csv.NewReader(bufio.NewReader(r))
+	header, err := cr.Read()
+	if err != nil {
+		return err
+	}
+	idx := map[string]int{}
+	for i, h := range header {
+		idx[h] = i
+	}
+	get := func(rec []string, key string) string {
+		if p, ok := idx[key]; ok && p < len(rec) {
+			return rec[p]
+		}
+		return ""
+	}
+	for {
+		rec, err := cr.Read()
+		if err != nil {
+			if err == io.EOF {
+				return nil
+			}
+			return err
+		}
+		s := Statement{
+			ID:          get(rec, "id"),
+			EntityID:    get(rec, "entity_id"),
+			CanonicalID: get(rec, "canonical_id"),
+			Prop:        get(rec, "prop"),
+			Schema:      get(rec, "schema"),
+			Value:       get(rec, "value"),
+			Dataset:     get(rec, "dataset"),
+			Lang:        get(rec, "lang"),
+			Original:    get(rec, "original_value"),
+			FirstSeen:   get(rec, "first_seen"),
+			LastSeen:    get(rec, "last_seen"),
+			Origin:      get(rec, "origin"),
+		}
+		if p, ok := idx["external"]; ok && p < len(rec) {
+			b, _ := strconv.ParseBool(rec[p])
+			s.External = b
+		}
+		s.Clean()
+		if s.ID == "" {
+			s.MakeKey()
+		}
+		if err := fn(s); err != nil {
+			return err
+		}
+	}
 }
