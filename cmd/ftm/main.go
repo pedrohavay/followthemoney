@@ -8,7 +8,7 @@ import (
 	"io"
 	"os"
 
-	"followthemoneygo/ftm"
+	"github.com/pedrohavay/followthemoney/ftm"
 )
 
 // Minimal CLI mirroring core Python commands: dump-model, validate, pretty, sign.

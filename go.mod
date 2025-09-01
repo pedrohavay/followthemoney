@@ -1,4 +1,4 @@
-module followthemoneygo
+module github.com/pedrohavay/followthemoney
 
 go 1.23.0
 
