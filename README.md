@@ -1,5 +1,9 @@
 # Follow The Money (Go)
 
+[![CI](https://github.com/pedrohavay/followthemoney/actions/workflows/ci.yml/badge.svg)](https://github.com/pedrohavay/followthemoney/actions/workflows/ci.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/pedrohavay/followthemoney/ftm.svg)](https://pkg.go.dev/github.com/pedrohavay/followthemoney/ftm)
+[![Release](https://img.shields.io/github/v/release/pedrohavay/followthemoney?display_name=tag&sort=semver)](https://github.com/pedrohavay/followthemoney/releases)
+
 A Go port of FollowTheMoney (FtM) — a pragmatic data model for people, companies, assets, relationships and documents
 used in investigative work and financial crime analysis.
 
