@@ -3,28 +3,44 @@ name: Release
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - 'v*'
+
+permissions:
+  contents: write
 
 jobs:
-  build-and-release:
+  release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
         with:
           go-version: 'stable'
-      - name: Tidy
+          cache: true
+
+      - name: Verify module
         run: |
           go mod tidy
-          git diff --exit-code || (echo 'go.mod/go.sum changed after tidy' && exit 1)
-      - name: Build
-        run: go build ./...
-      - name: Test
-        run: go test ./... -race
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          git diff --exit-code go.mod go.sum || (echo '::error::go.mod/go.sum changed after tidy' && exit 1)
 
+      - name: Run tests
+        run: go test ./... -race -short
+
+      - name: Build validation
+        run: go build ./...
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          generateReleaseNotes: true
+          body: |
+            ## Installation
+            
+            ```bash
+            go get github.com/${{ github.repository }}@${{ github.ref_name }}
+            ```
