@@ -163,6 +163,10 @@ _ = ftm.WriteStatementsMsgpack(&buf, st)
 _ = ftm.ReadStatementsMsgpack(&buf, func (s ftm.Statement) error { return nil })
 ```
 
+Notes:
+- Statements include `prop_type` (e.g., `name`, `country`, `id`). Readers compute it when absent for backward compatibility.
+- The BaseID statement (`prop = "id"`) carries the entity ID in `value` across all producers, including `StatementEntity`.
+
 ## Aggregation
 
 Reconstruct entities from statements by aggregating on `canonical_id` (or `entity_id` when canonical is absent).
