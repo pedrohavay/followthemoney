@@ -13,15 +13,16 @@ const BaseID = "id"
 // Statement represents a single assertion about an entity property.
 // Fields are modeled after the Python implementation.
 type Statement struct {
-	ID          string `json:"id,omitempty"`
-	EntityID    string `json:"entity_id"`
-	CanonicalID string `json:"canonical_id,omitempty"`
-	Prop        string `json:"prop"`
-	Schema      string `json:"schema"`
-	Value       string `json:"value"`
-	Dataset     string `json:"dataset"`
-	Lang        string `json:"lang,omitempty"`
-	Original    string `json:"original_value,omitempty"`
+    ID          string `json:"id,omitempty"`
+    EntityID    string `json:"entity_id"`
+    CanonicalID string `json:"canonical_id,omitempty"`
+    Prop        string `json:"prop"`
+    PropType    string `json:"prop_type,omitempty"`
+    Schema      string `json:"schema"`
+    Value       string `json:"value"`
+    Dataset     string `json:"dataset"`
+    Lang        string `json:"lang,omitempty"`
+    Original    string `json:"original_value,omitempty"`
 	External    bool   `json:"external"`
 	FirstSeen   string `json:"first_seen,omitempty"`
 	LastSeen    string `json:"last_seen,omitempty"`
@@ -50,10 +51,10 @@ func MakeStatementKey(dataset, entityID, prop, value string, external bool) stri
 // PropTypeName resolves the property type name for a (schema, prop) pair.
 // Returns BaseID for the BaseID property.
 func PropTypeName(m *Model, schema, prop string) (string, error) {
-	if prop == BaseID {
-		return BaseID, nil
-	}
-	sc := m.Get(schema)
+    if prop == BaseID {
+        return BaseID, nil
+    }
+    sc := m.Get(schema)
 	if sc == nil {
 		return "", fmt.Errorf("schema not found: %s", schema)
 	}
@@ -66,44 +67,49 @@ func PropTypeName(m *Model, schema, prop string) (string, error) {
 
 // StatementsFromEntity emits statements for an entity.
 func StatementsFromEntity(e *EntityProxy, dataset string, firstSeen, lastSeen string, external bool, origin string) []Statement {
-	if e == nil || e.ID == "" {
-		return nil
-	}
-	st := make([]Statement, 0, 1+len(e.props))
-	base := Statement{
-		EntityID:    e.ID,
-		CanonicalID: e.ID,
-		Prop:        BaseID,
-		Schema:      e.Schema.Name,
-		Value:       e.ID,
-		Dataset:     dataset,
-		External:    external,
-		FirstSeen:   firstSeen,
-		LastSeen:    ifEmpty(lastSeen, firstSeen),
-		Origin:      origin,
-	}
-	base.MakeKey()
-	st = append(st, base)
+    if e == nil || e.ID == "" {
+        return nil
+    }
+    st := make([]Statement, 0, 1+len(e.props))
+    base := Statement{
+        EntityID:    e.ID,
+        CanonicalID: e.ID,
+        Prop:        BaseID,
+        PropType:    BaseID,
+        Schema:      e.Schema.Name,
+        Value:       e.ID,
+        Dataset:     dataset,
+        External:    external,
+        FirstSeen:   firstSeen,
+        LastSeen:    ifEmpty(lastSeen, firstSeen),
+        Origin:      origin,
+    }
+    base.MakeKey()
+    st = append(st, base)
 
-	for name, vals := range e.props {
-		for _, v := range vals {
-			s := Statement{
-				EntityID:    e.ID,
-				CanonicalID: e.ID,
-				Prop:        name,
-				Schema:      e.Schema.Name,
-				Value:       v,
-				Dataset:     dataset,
-				External:    external,
-				FirstSeen:   firstSeen,
-				LastSeen:    ifEmpty(lastSeen, firstSeen),
-				Origin:      origin,
-			}
-			s.MakeKey()
-			st = append(st, s)
-		}
-	}
-	return st
+    for name, vals := range e.props {
+        for _, v := range vals {
+            s := Statement{
+                EntityID:    e.ID,
+                CanonicalID: e.ID,
+                Prop:        name,
+                PropType:    "",
+                Schema:      e.Schema.Name,
+                Value:       v,
+                Dataset:     dataset,
+                External:    external,
+                FirstSeen:   firstSeen,
+                LastSeen:    ifEmpty(lastSeen, firstSeen),
+                Origin:      origin,
+            }
+            if t, err := PropTypeName(e.Schema.Model, s.Schema, s.Prop); err == nil {
+                s.PropType = t
+            }
+            s.MakeKey()
+            st = append(st, s)
+        }
+    }
+    return st
 }
 
 func ifEmpty(v, alt string) string {

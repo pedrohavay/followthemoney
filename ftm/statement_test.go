@@ -20,16 +20,19 @@ func TestStatementsFromEntityAndAggregate(t *testing.T) {
 	_ = e.Add("name", []string{"John Smith"}, false, "")
 	_ = e.Add("nationality", []string{"de"}, false, "")
 
-	st := StatementsFromEntity(e, "ds1", "2024-01-01", "", false, "test")
-	if len(st) < 3 {
-		t.Fatalf("expected >= 3 statements (base + props), got %d", len(st))
-	}
-	// ensure ids are set
-	for _, s := range st {
-		if s.ID == "" {
-			t.Fatalf("statement without id: %#v", s)
-		}
-	}
+    st := StatementsFromEntity(e, "ds1", "2024-01-01", "", false, "test")
+    if len(st) < 3 {
+        t.Fatalf("expected >= 3 statements (base + props), got %d", len(st))
+    }
+    // ensure ids are set
+    for _, s := range st {
+        if s.ID == "" {
+            t.Fatalf("statement without id: %#v", s)
+        }
+        if s.PropType == "" {
+            t.Fatalf("statement without prop_type: %#v", s)
+        }
+    }
 
 	// JSONL round-trip
 	buf := bytes.Buffer{}
@@ -102,9 +105,15 @@ func TestStatementsCSVAndMsgpackRoundTrip(t *testing.T) {
 	if err := ReadStatementsCSV(strings.NewReader(csvbuf.String()), func(s Statement) error { backCSV = append(backCSV, s); return nil }); err != nil {
 		t.Fatalf("read csv: %v", err)
 	}
-	if len(backCSV) != len(st) {
-		t.Fatalf("csv round-trip length mismatch: %d vs %d", len(backCSV), len(st))
-	}
+    if len(backCSV) != len(st) {
+        t.Fatalf("csv round-trip length mismatch: %d vs %d", len(backCSV), len(st))
+    }
+    // prop_type must be present after round-trip
+    for _, s := range backCSV {
+        if s.PropType == "" {
+            t.Fatalf("csv round-trip missing prop_type for statement: %#v", s)
+        }
+    }
 
 	// Msgpack write/read
 	mpbuf := bytes.Buffer{}
@@ -115,10 +124,17 @@ func TestStatementsCSVAndMsgpackRoundTrip(t *testing.T) {
 	if err := ReadStatementsMsgpack(&mpbuf, func(s Statement) error { backMP = append(backMP, s); return nil }); err != nil {
 		t.Fatalf("read msgpack: %v", err)
 	}
-	if len(backMP) != len(st) {
-		t.Fatalf("msgpack round-trip length mismatch: %d vs %d", len(backMP), len(st))
-	}
+    if len(backMP) != len(st) {
+        t.Fatalf("msgpack round-trip length mismatch: %d vs %d", len(backMP), len(st))
+    }
+    for _, s := range backMP {
+        if s.PropType == "" {
+            t.Fatalf("msgpack round-trip missing prop_type for statement: %#v", s)
+        }
+    }
 }
+
+// BaseID semantics are tested in statement_entity_test.go
 
 func TestStatementAggregatorStream(t *testing.T) {
 	m, err := NewModel("../schema")
