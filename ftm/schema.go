@@ -114,11 +114,12 @@ func newSchema(m *Model, name string, spec schemaSpec) (*Schema, error) {
 	if spec.Generated != nil {
 		s.Generated = *spec.Generated
 	}
-	if spec.Matchable != nil {
-		s.Matchable = *spec.Matchable
-	} else {
-		s.Matchable = true
-	}
+    if spec.Matchable != nil {
+        s.Matchable = *spec.Matchable
+    } else {
+        // Default to false when not specified to align with official model semantics.
+        s.Matchable = false
+    }
 	if spec.Deprecated != nil {
 		s.Deprecated = *spec.Deprecated
 	}
