@@ -1,10 +1,8 @@
 package ftm
 
 import (
-	"crypto/sha1"
-	"encoding/hex"
-	"fmt"
-	"sort"
+    "fmt"
+    "sort"
 )
 
 // StatementEntity stores statements grouped by property for a single canonical entity.
