@@ -56,8 +56,8 @@ import (
 )
 
 func main() {
-	// Default model loads from ./schema or FTM_MODEL_PATH if set
-	m := ftm.Default()
+    // Default model loads embedded schemata; override via FTM_MODEL_PATH
+    m := ftm.Default()
 
 	// Create a Person
 	person := m.Get("Person")
