@@ -12,7 +12,7 @@ func TestGraphEntityAndValueEdges(t *testing.T) {
 		t.Skip("Person schema missing")
 	}
 	e := NewEntityProxy(ps, "p1")
-	_ = e.Add("name", []string{"John Smith"}, false, "")
+	_ = e.Add("name", []string{"John Smith"}, false)
 
 	g := NewGraph(nil)
 	g.Add(e)

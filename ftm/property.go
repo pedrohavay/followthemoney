@@ -23,12 +23,14 @@ type Property struct {
 	Reverse *Property
 }
 
+// reverseSpec is used only during YAML unmarshalling.
 type reverseSpec struct {
 	Name   string `yaml:"name" json:"name"`
 	Label  string `yaml:"label" json:"label"`
 	Hidden *bool  `yaml:"hidden" json:"hidden"`
 }
 
+// propertySpec is used only during YAML unmarshalling.
 type propertySpec struct {
 	Label       string       `yaml:"label" json:"label"`
 	Description string       `yaml:"description" json:"description"`
@@ -42,6 +44,7 @@ type propertySpec struct {
 	Reverse     *reverseSpec `yaml:"reverse" json:"reverse"`
 }
 
+// newProperty creates a new property from its spec, without resolving cross-links.
 func newProperty(schema *Schema, name string, spec propertySpec) (*Property, error) {
 	p := &Property{
 		Schema:      schema,
@@ -54,22 +57,29 @@ func newProperty(schema *Schema, name string, spec propertySpec) (*Property, err
 		MaxLength:   0,
 		Format:      spec.Format,
 	}
+
 	if spec.MaxLength != nil {
 		p.MaxLength = *spec.MaxLength
 	}
+
 	tName := spec.Type
 	if tName == "" {
 		tName = "string"
 	}
+
+	// Lookup type in registry
 	p.Type = registry.Get(tName)
 	if p.Type == nil {
 		// Fallback to string type for unsupported types in this minimal port.
 		p.Type = registry.String
 	}
+
+	// If range is specified, it must be a known schema.
 	if spec.Matchable != nil {
 		p.Matchable = *spec.Matchable
 	} else {
 		p.Matchable = p.Type.Matchable()
 	}
+
 	return p, nil
 }

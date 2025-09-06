@@ -64,8 +64,8 @@ func main() {
 	e := ftm.NewEntityProxy(person, "p1")
 
 	// Add raw values (cleaning and de-dup applied)
-	_ = e.Add("name", []string{" John  Smith "}, false, "")
-	_ = e.Add("nationality", []string{"DE"}, false, "")
+	_ = e.Add("name", []string{" John  Smith "}, false)
+	_ = e.Add("nationality", []string{"DE"}, false)
 
 	// Serialize
 	data := e.ToDict()
@@ -95,7 +95,7 @@ also rewrites entity‑typed properties to their signed equivalents.
 ns := ftm.NewNamespace("dataset-key")
 
 p := ftm.NewEntityProxy(ftm.Default().Get("Passport"), "doc1")
-_ = p.Add("holder", []string{"p1"}, true, "")
+_ = p.Add("holder", []string{"p1"}, true)
 
 signed := ns.Apply(p, false)
 // signed.ID and entity-typed values are signed
@@ -118,7 +118,7 @@ import (
 func main() {
 	m := ftm.Default()
 	e := ftm.NewEntityProxy(m.Get("Person"), "p1")
-	_ = e.Add("name", []string{"Ana"}, false, "")
+	_ = e.Add("name", []string{"Ana"}, false)
 
 	g := ftm.NewGraph(nil)
 	g.Add(e)
@@ -207,8 +207,8 @@ Build an entity by accumulating statements and keep provenance:
 
 ```go
 se, _ := ftm.NewStatementEntity(ftm.Default(), "ds", "Person", "p1")
-_ = se.Add(ftm.Default(), "name", "Ana", "", "", "source-A", "2025-01-01")
-_ = se.Add(ftm.Default(), "nationality", "br", "", "", "source-B", "2025-02-10")
+_ = se.Add(ftm.Default(), "name", "Ana", "", "", "source-A")
+_ = se.Add(ftm.Default(), "nationality", "br", "", "", "source-B")
 statements := se.Statements() // includes BaseID checksum
 ```
 

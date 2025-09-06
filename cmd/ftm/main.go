@@ -104,7 +104,7 @@ func validate() {
 		}
 		proxy := ftm.NewEntityProxy(sc, e.ID)
 		for name, vals := range e.Properties {
-			_ = proxy.Add(name, vals, false, "")
+			_ = proxy.Add(name, vals, false)
 		}
 		// revalidate and normalize: emit cleaned dict
 		_ = sc.Validate(proxy.ToDict()["properties"].(map[string][]string))
@@ -151,7 +151,7 @@ func sign() {
 		}
 		proxy := ftm.NewEntityProxy(sc, e.ID)
 		for name, vals := range e.Properties {
-			_ = proxy.Add(name, vals, true, "")
+			_ = proxy.Add(name, vals, true)
 		}
 		signed := ns.Apply(proxy, false)
 		_ = enc.Encode(signed.ToDict())

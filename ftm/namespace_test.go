@@ -23,12 +23,12 @@ func TestNamespaceSignVerifyApply(t *testing.T) {
 	}
 	p := NewEntityProxy(pass, "doc1")
 	// holder is entity reference
-	_ = p.Add("holder", []string{"p1"}, true, "")
+	_ = p.Add("holder", []string{"p1"}, true)
 	sp := ns.Apply(p, false)
 	if !ns.Verify(sp.ID) {
 		t.Fatalf("verify applied entity id failed: %s", sp.ID)
 	}
-	vals := sp.Get("holder", false)
+	vals := sp.Get("holder")
 	if len(vals) == 0 || !ns.Verify(vals[0]) {
 		t.Fatalf("verify applied holder failed: %v", vals)
 	}

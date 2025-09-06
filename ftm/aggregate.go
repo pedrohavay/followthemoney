@@ -36,7 +36,7 @@ func AggregateSortedStatements(m *Model, st []Statement) []*EntityProxy {
 			continue
 		}
 		// Add property value (cleaned assumed)
-		_ = cur.Add(s.Prop, []string{s.Value}, true, "")
+		_ = cur.Add(s.Prop, []string{s.Value}, true)
 	}
 	if cur != nil {
 		out = append(out, cur)

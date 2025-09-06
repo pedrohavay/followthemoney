@@ -6,6 +6,10 @@ import (
 	"sort"
 )
 
+// ErrPropertyNotFound is returned when a property is not found in the schema.
+// It can be used with errors.Is() for error checking.
+var ErrPropertyNotFound = errors.New("property not found")
+
 // EntityProxy wraps an entity instance with its schema and property values.
 // It provides validation, normalization, and utility methods.
 type EntityProxy struct {
@@ -18,6 +22,7 @@ type EntityProxy struct {
 	size  int // accumulated size of string values
 }
 
+// NewEntityProxy creates a new entity proxy with the given schema and ID.
 func NewEntityProxy(schema *Schema, id string) *EntityProxy {
 	return &EntityProxy{Schema: schema, ID: id, Context: map[string]any{}, props: map[string][]string{}}
 }
@@ -31,19 +36,17 @@ func (e *EntityProxy) MakeID(parts ...string) (string, bool) {
 	return e.ID, ok
 }
 
-func (e *EntityProxy) getProp(name string, quiet bool) (*Property, error) {
+// getProp retrieves a property by name.
+func (e *EntityProxy) getProp(name string) (*Property, error) {
 	if p := e.Schema.Get(name); p != nil {
 		return p, nil
 	}
-	if quiet {
-		return nil, nil
-	}
-	return nil, errors.New("unknown property: " + name)
+	return nil, fmt.Errorf("%w: %s", ErrPropertyNotFound, name)
 }
 
 // Get returns all values for a property by name.
-func (e *EntityProxy) Get(name string, quiet bool) []string {
-	if _, err := e.getProp(name, quiet); err != nil {
+func (e *EntityProxy) Get(name string) []string {
+	if _, err := e.getProp(name); err != nil {
 		return nil
 	}
 	xs := e.props[name]
@@ -53,8 +56,8 @@ func (e *EntityProxy) Get(name string, quiet bool) []string {
 }
 
 // First returns the first value for a property.
-func (e *EntityProxy) First(name string, quiet bool) string {
-	xs := e.Get(name, quiet)
+func (e *EntityProxy) First(name string) string {
+	xs := e.Get(name)
 	if len(xs) > 0 {
 		return xs[0]
 	}
@@ -62,36 +65,48 @@ func (e *EntityProxy) First(name string, quiet bool) string {
 }
 
 // Has tests if a property has at least one value.
-func (e *EntityProxy) Has(name string, quiet bool) bool { _, ok := e.props[name]; return ok }
+func (e *EntityProxy) Has(name string) bool { _, ok := e.props[name]; return ok }
 
 // Add adds (and normalizes) values for a property.
-func (e *EntityProxy) Add(name string, values []string, fuzzy bool, format string) error {
-	p, err := e.getProp(name, false)
+func (e *EntityProxy) Add(name string, values []string, fuzzy bool) error {
+	// Lookup property in schema
+	p, err := e.getProp(name)
 	if err != nil || p == nil {
 		return err
 	}
+
+	// Cannot write to stub property
 	if p.Stub {
 		return errors.New("stub property cannot be written")
 	}
-	// iterate and clean
+
+	// Iterate and clean
 	if e.props[name] == nil {
 		e.props[name] = []string{}
 	}
+
+	// Use a set to avoid duplicates
 	set := map[string]struct{}{}
 	for _, v := range e.props[name] {
 		set[v] = struct{}{}
 	}
+
+	// Use property format if not overridden
 	for _, raw := range values {
+		// Clean/normalize value
 		clean, ok := p.Type.Clean(raw, fuzzy, p.Format, e)
 		if !ok || clean == "" {
 			continue
 		}
-		// aggregate size cap
+
+		// Aggregate size cap
 		if maxValue := p.Type.TotalSize(); maxValue > 0 {
 			if e.size+len(clean) > maxValue {
 				continue
 			}
 		}
+
+		// Avoid duplicates
 		if _, seen := set[clean]; !seen {
 			e.props[name] = append(e.props[name], clean)
 			set[clean] = struct{}{}
@@ -103,48 +118,62 @@ func (e *EntityProxy) Add(name string, values []string, fuzzy bool, format strin
 
 // UnsafeAdd is a helper for adding a single already-sanitized value.
 func (e *EntityProxy) UnsafeAdd(p *Property, value string, fuzzy bool) (string, bool) {
+	// Clean/normalize value
 	clean, ok := p.Type.Clean(value, fuzzy, p.Format, e)
 	if !ok || clean == "" {
 		return "", false
 	}
+
+	// Cannot write to stub property
 	if p.Stub {
 		return "", false
 	}
+
+	// Initialize if needed
 	if e.props[p.Name] == nil {
 		e.props[p.Name] = []string{}
 	}
+
+	// Avoid duplicates
 	for _, v := range e.props[p.Name] {
 		if v == clean {
 			return clean, true
 		}
 	}
+
+	// Aggregate size cap
 	if maxVal := p.Type.TotalSize(); maxVal > 0 && e.size+len(clean) > maxVal {
 		return "", false
 	}
 	e.props[p.Name] = append(e.props[p.Name], clean)
 	e.size += len(clean)
+
 	return clean, true
 }
 
 // Set replaces all existing values with the provided ones.
-func (e *EntityProxy) Set(name string, values []string, fuzzy bool, format string) error {
+func (e *EntityProxy) Set(name string, values []string, fuzzy bool) error {
 	delete(e.props, name)
-	return e.Add(name, values, fuzzy, format)
+	return e.Add(name, values, fuzzy)
 }
 
 // Pop removes all values for a property and returns them.
-func (e *EntityProxy) Pop(name string, quiet bool) []string {
-	if _, err := e.getProp(name, quiet); err != nil {
+func (e *EntityProxy) Pop(name string) []string {
+	if _, err := e.getProp(name); err != nil {
 		return nil
 	}
 	xs := e.props[name]
+	// Adjust size by subtracting removed values
+	for _, v := range xs {
+		e.size -= len(v)
+	}
 	delete(e.props, name)
 	return xs
 }
 
 // Remove removes a single value from the property.
-func (e *EntityProxy) Remove(name, value string, quiet bool) {
-	if _, err := e.getProp(name, quiet); err != nil {
+func (e *EntityProxy) Remove(name, value string) {
+	if _, err := e.getProp(name); err != nil {
 		return
 	}
 	xs := e.props[name]
@@ -152,6 +181,9 @@ func (e *EntityProxy) Remove(name, value string, quiet bool) {
 	for _, v := range xs {
 		if v != value {
 			out = append(out, v)
+		} else {
+			// Adjust size by subtracting removed value
+			e.size -= len(v)
 		}
 	}
 	if len(out) == 0 {
@@ -193,8 +225,8 @@ func (e *EntityProxy) EdgePairs() [][2]string {
 	if !e.Schema.Edge {
 		return nil
 	}
-	src := e.Get(e.Schema.EdgeSource, true)
-	dst := e.Get(e.Schema.EdgeTarget, true)
+	src := e.Get(e.Schema.EdgeSource)
+	dst := e.Get(e.Schema.EdgeTarget)
 	out := make([][2]string, 0, len(src)*len(dst))
 	for _, s := range src {
 		for _, t := range dst {
@@ -237,7 +269,7 @@ func (e *EntityProxy) Caption() string {
 		if p == nil {
 			continue
 		}
-		values := e.Get(pName, true)
+		values := e.Get(pName)
 		if p.Type.Name() == registry.Name.Name() && len(values) > 1 {
 			return shortest(values...)
 		}
@@ -302,7 +334,7 @@ func (e *EntityProxy) Merge(other *EntityProxy) (*EntityProxy, error) {
 		}
 	}
 	for name, values := range other.props {
-		_ = e.Add(name, values, true, "")
+		_ = e.Add(name, values, true)
 	}
 	return e, nil
 }

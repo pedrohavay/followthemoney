@@ -76,7 +76,7 @@ func TestPhoneCleanWithCountryHint(t *testing.T) {
 	}
 	p := NewEntityProxy(ps, "p1")
 	// Add nationality first, so phone has country hint
-	if err := p.Add("nationality", []string{"de"}, false, ""); err != nil {
+	if err := p.Add("nationality", []string{"de"}, false); err != nil {
 		t.Fatalf("add nationality: %v", err)
 	}
 	// Now add phone

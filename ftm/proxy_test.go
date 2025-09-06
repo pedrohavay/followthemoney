@@ -12,10 +12,10 @@ func TestProxyAddAndEdgePairs(t *testing.T) {
 		t.Fatal("Person schema missing")
 	}
 	p := NewEntityProxy(person, "p1")
-	if err := p.Add("name", []string{" John  Smith "}, false, ""); err != nil {
+	if err := p.Add("name", []string{" John  Smith "}, false); err != nil {
 		t.Fatalf("add name: %v", err)
 	}
-	vals := p.Get("name", false)
+	vals := p.Get("name")
 	if len(vals) != 1 || vals[0] != "John Smith" {
 		t.Fatalf("unexpected name values: %v", vals)
 	}
@@ -28,8 +28,8 @@ func TestProxyAddAndEdgePairs(t *testing.T) {
 	e := NewEntityProxy(own, "rel1")
 	// Use explicit edge source/target declared in schema
 	if own.EdgeSource != "" && own.EdgeTarget != "" {
-		_ = e.Add(own.EdgeSource, []string{"p1"}, true, "")
-		_ = e.Add(own.EdgeTarget, []string{"ba1"}, true, "")
+		_ = e.Add(own.EdgeSource, []string{"p1"}, true)
+		_ = e.Add(own.EdgeTarget, []string{"ba1"}, true)
 	}
 	pairs := e.EdgePairs()
 	if len(pairs) == 0 {

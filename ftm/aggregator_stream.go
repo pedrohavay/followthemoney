@@ -25,12 +25,12 @@ func (sa *StatementAggregator) Add(s Statement) *EntityProxy {
 		sa.cur = NewEntityProxy(sc, gk)
 		sa.key = gk
 		if s.Prop != BaseID {
-			_ = sa.cur.Add(s.Prop, []string{s.Value}, true, "")
+			_ = sa.cur.Add(s.Prop, []string{s.Value}, true)
 		}
 		return done
 	}
 	if s.Prop != BaseID {
-		_ = sa.cur.Add(s.Prop, []string{s.Value}, true, "")
+		_ = sa.cur.Add(s.Prop, []string{s.Value}, true)
 	}
 	return nil
 }

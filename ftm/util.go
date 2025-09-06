@@ -8,6 +8,27 @@ import (
 	"unicode"
 )
 
+// indexOf returns the index of val in list, or a large number if not found.
+func indexOf(list []string, val string) int {
+	for i, v := range list {
+		if v == val {
+			return i
+		}
+	}
+	return 1 << 30
+}
+
+// compareIndex compares two indices, returning -1, 0, or 1.
+func compareIndex(a, b int) int {
+	if a < b {
+		return -1
+	}
+	if a > b {
+		return 1
+	}
+	return 0
+}
+
 // sanitizeText normalizes input to NFC-ish ASCII-safe representation.
 // It trims spaces, removes control characters, and collapses internal whitespace.
 func sanitizeText(s string) (string, bool) {

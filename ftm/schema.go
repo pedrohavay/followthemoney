@@ -62,6 +62,7 @@ type Schema struct {
 	generated bool
 }
 
+// schemaSpec is the YAML/JSON structure for loading a schema.
 type schemaSpec struct {
 	Label       string                  `yaml:"label" json:"label"`
 	Plural      string                  `yaml:"plural" json:"plural"`
@@ -81,6 +82,7 @@ type schemaSpec struct {
 	Deprecated  *bool                   `yaml:"deprecated" json:"deprecated"`
 }
 
+// newSchema creates a new schema from its spec, without resolving inheritance or cross-links.
 func newSchema(m *Model, name string, spec schemaSpec) (*Schema, error) {
 	s := &Schema{
 		Model:          m,
@@ -99,27 +101,34 @@ func newSchema(m *Model, name string, spec schemaSpec) (*Schema, error) {
 		Descendants:    map[string]*Schema{},
 		Properties:     map[string]*Property{},
 	}
+
 	if s.Label == "" {
 		s.Label = name
 	}
+
 	if s.Plural == "" {
 		s.Plural = s.Label
 	}
+
 	if spec.Abstract != nil {
 		s.Abstract = *spec.Abstract
 	}
+
 	if spec.Hidden != nil {
 		s.Hidden = *spec.Hidden
 	}
+
 	if spec.Generated != nil {
 		s.Generated = *spec.Generated
 	}
-    if spec.Matchable != nil {
-        s.Matchable = *spec.Matchable
-    } else {
-        // Default to false when not specified to align with official model semantics.
-        s.Matchable = false
-    }
+
+	if spec.Matchable != nil {
+		s.Matchable = *spec.Matchable
+	} else {
+		// Default to false when not specified to align with official model semantics.
+		s.Matchable = false
+	}
+
 	if spec.Deprecated != nil {
 		s.Deprecated = *spec.Deprecated
 	}
@@ -140,37 +149,47 @@ func newSchema(m *Model, name string, spec schemaSpec) (*Schema, error) {
 
 	// Own properties for now; ranges/reverses resolved in Generate
 	for pn, ps := range spec.Properties {
+		// Create property
 		p, err := newProperty(s, pn, ps)
 		if err != nil {
 			return nil, err
 		}
+
 		s.Properties[pn] = p
 	}
-	// initialize own ancestry with self
+
+	// Initialize own ancestry with self
 	s.Schemata[s.Name] = s
 	s.Names[s.Name] = struct{}{}
+
 	return s, nil
 }
 
-// Generate finalizes the schema: resolve inheritance, properties, reverse links, etc.
+// Generate finalizes the schema by resolving inheritance chains, property ranges, and establishing bidirectional reverse links.
+// This method is idempotent and safe to call multiple times.
 func (s *Schema) Generate() error {
 	if s.generated {
 		return nil
 	}
+
 	// Resolve extends
 	// Note: Model calls Generate after loading all schemata; we resolve here lazily.
 	// Inherit properties and ancestry.
 	for _, parent := range s.Model.extendsIndex[s.Name] {
 		// Ensure parent is generated first
 		_ = parent.Generate()
+
 		// Parent already exists by model load stage
 		if _, ok := s.Schemata[parent.Name]; !ok {
 			s.Extends = append(s.Extends, parent)
+
+			// Inherit properties
 			for name, prop := range parent.Properties {
 				if _, ok := s.Properties[name]; !ok {
 					s.Properties[name] = prop
 				}
 			}
+
 			// Inherit ancestry
 			for n, sc := range parent.Schemata {
 				s.Schemata[n] = sc
@@ -190,6 +209,7 @@ func (s *Schema) Generate() error {
 					}
 				}
 			}
+
 			if prop.Reverse == nil {
 				if rs, ok := s.Model.reverseIndex[prop.QName]; ok && prop.Range != nil {
 					// Create or get reverse property on the range schema
@@ -223,6 +243,7 @@ func (s *Schema) Generate() error {
 	return nil
 }
 
+// Get returns the property by name, or nil if not found.
 func (s *Schema) Get(name string) *Property { return s.Properties[name] }
 
 // IsA checks if the schema or any parent matches the candidate name.
@@ -233,10 +254,12 @@ func (s *Schema) IsA(candidate string) bool {
 
 // SortedProperties returns properties sorted with caption/featured priority then by label.
 func (s *Schema) SortedProperties() []*Property {
+	// Collect properties into a slice
 	props := make([]*Property, 0, len(s.Properties))
 	for _, p := range s.Properties {
 		props = append(props, p)
 	}
+
 	// Keep deterministic order: captions first, then featured, then name
 	slices.SortFunc(props, func(a, b *Property) int {
 		// caption priority
@@ -259,29 +282,13 @@ func (s *Schema) SortedProperties() []*Property {
 		}
 		return 0
 	})
+
 	return props
 }
 
-func indexOf(list []string, val string) int {
-	for i, v := range list {
-		if v == val {
-			return i
-		}
-	}
-	return 1 << 30
-}
-func compareIndex(a, b int) int {
-	if a < b {
-		return -1
-	}
-	if a > b {
-		return 1
-	}
-	return 0
-}
-
-// Temporal properties resolved lists
+// TemporalStartProps Temporal properties resolved lists
 func (s *Schema) TemporalStartProps() []*Property {
+	// If not defined, inherit from first parent that has it
 	names := s.temporalStart
 	if len(names) == 0 {
 		for _, parent := range s.Extends {
@@ -291,16 +298,21 @@ func (s *Schema) TemporalStartProps() []*Property {
 			}
 		}
 	}
+
+	// Resolve to properties
 	props := make([]*Property, 0, len(names))
 	for _, n := range names {
 		if p := s.Get(n); p != nil {
 			props = append(props, p)
 		}
 	}
+
 	return props
 }
 
+// TemporalEndProps Temporal properties resolved lists
 func (s *Schema) TemporalEndProps() []*Property {
+	// If not defined, inherit from first parent that has it
 	names := s.temporalEnd
 	if len(names) == 0 {
 		for _, parent := range s.Extends {
@@ -310,12 +322,15 @@ func (s *Schema) TemporalEndProps() []*Property {
 			}
 		}
 	}
+
+	// Resolve to properties
 	props := make([]*Property, 0, len(names))
 	for _, n := range names {
 		if p := s.Get(n); p != nil {
 			props = append(props, p)
 		}
 	}
+
 	return props
 }
 
@@ -327,6 +342,7 @@ func (s *Schema) Validate(data map[string][]string) error {
 			return fmt.Errorf("required property missing: %s", req)
 		}
 	}
+
 	// Type-level validation
 	for name, values := range data {
 		p := s.Properties[name]
