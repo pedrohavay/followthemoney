@@ -67,21 +67,6 @@ func sanitizeText(s string) (string, bool) {
 	return out, true
 }
 
-// joinText joins non-empty parts with the given separator.
-func joinText(sep string, parts ...string) (string, bool) {
-	xs := make([]string, 0, len(parts))
-	for _, p := range parts {
-		if p == "" {
-			continue
-		}
-		xs = append(xs, p)
-	}
-	if len(xs) == 0 {
-		return "", false
-	}
-	return strings.Join(xs, sep), true
-}
-
 // makeEntityID hashes the provided parts with an optional key prefix.
 func makeEntityID(keyPrefix string, parts ...string) (string, bool) {
 	h := sha1.New()
@@ -120,4 +105,10 @@ func shortest(values ...string) string {
 	return nonEmpty[0]
 }
 
-// date regexes moved to types_date.go
+// firstNonEmpty returns the first non-empty string.
+func firstNonEmpty(a, b string) string {
+	if a != "" {
+		return a
+	}
+	return b
+}

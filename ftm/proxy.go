@@ -24,7 +24,12 @@ type EntityProxy struct {
 
 // NewEntityProxy creates a new entity proxy with the given schema and ID.
 func NewEntityProxy(schema *Schema, id string) *EntityProxy {
-	return &EntityProxy{Schema: schema, ID: id, Context: map[string]any{}, props: map[string][]string{}}
+	return &EntityProxy{
+		Schema:  schema,
+		ID:      id,
+		Context: map[string]any{},
+		props:   map[string][]string{},
+	}
 }
 
 // MakeID creates a hashed ID from the provided parts and key prefix.
@@ -49,9 +54,11 @@ func (e *EntityProxy) Get(name string) []string {
 	if _, err := e.getProp(name); err != nil {
 		return nil
 	}
+
 	xs := e.props[name]
 	out := make([]string, len(xs))
 	copy(out, xs)
+
 	return out
 }
 
@@ -65,7 +72,10 @@ func (e *EntityProxy) First(name string) string {
 }
 
 // Has tests if a property has at least one value.
-func (e *EntityProxy) Has(name string) bool { _, ok := e.props[name]; return ok }
+func (e *EntityProxy) Has(name string) bool {
+	_, ok := e.props[name]
+	return ok
+}
 
 // Add adds (and normalizes) values for a property.
 func (e *EntityProxy) Add(name string, values []string, fuzzy bool) error {
@@ -113,6 +123,7 @@ func (e *EntityProxy) Add(name string, values []string, fuzzy bool) error {
 			e.size += len(clean)
 		}
 	}
+
 	return nil
 }
 
@@ -145,6 +156,7 @@ func (e *EntityProxy) UnsafeAdd(p *Property, value string, fuzzy bool) (string, 
 	if maxVal := p.Type.TotalSize(); maxVal > 0 && e.size+len(clean) > maxVal {
 		return "", false
 	}
+
 	e.props[p.Name] = append(e.props[p.Name], clean)
 	e.size += len(clean)
 
@@ -162,12 +174,14 @@ func (e *EntityProxy) Pop(name string) []string {
 	if _, err := e.getProp(name); err != nil {
 		return nil
 	}
+
 	xs := e.props[name]
 	// Adjust size by subtracting removed values
 	for _, v := range xs {
 		e.size -= len(v)
 	}
 	delete(e.props, name)
+
 	return xs
 }
 
@@ -176,6 +190,7 @@ func (e *EntityProxy) Remove(name, value string) {
 	if _, err := e.getProp(name); err != nil {
 		return
 	}
+
 	xs := e.props[name]
 	out := xs[:0]
 	for _, v := range xs {
@@ -186,6 +201,7 @@ func (e *EntityProxy) Remove(name, value string) {
 			e.size -= len(v)
 		}
 	}
+
 	if len(out) == 0 {
 		delete(e.props, name)
 	} else {
@@ -225,14 +241,17 @@ func (e *EntityProxy) EdgePairs() [][2]string {
 	if !e.Schema.Edge {
 		return nil
 	}
+
 	src := e.Get(e.Schema.EdgeSource)
 	dst := e.Get(e.Schema.EdgeTarget)
 	out := make([][2]string, 0, len(src)*len(dst))
+
 	for _, s := range src {
 		for _, t := range dst {
 			out = append(out, [2]string{s, t})
 		}
 	}
+
 	return out
 }
 
@@ -240,6 +259,7 @@ func (e *EntityProxy) EdgePairs() [][2]string {
 func (e *EntityProxy) GetTypeValues(pt PropertyType, matchable bool) []string {
 	seen := map[string]struct{}{}
 	var out []string
+
 	for name, vals := range e.props {
 		p := e.Schema.Get(name)
 		if p == nil {
@@ -258,6 +278,7 @@ func (e *EntityProxy) GetTypeValues(pt PropertyType, matchable bool) []string {
 			}
 		}
 	}
+
 	return out
 }
 
@@ -281,7 +302,9 @@ func (e *EntityProxy) Caption() string {
 }
 
 // Countries returns country-type values set on the entity.
-func (e *EntityProxy) Countries() []string { return e.GetTypeValues(registry.Country, false) }
+func (e *EntityProxy) Countries() []string {
+	return e.GetTypeValues(registry.Country, false)
+}
 
 // ToDict serializes the entity to a plain map.
 func (e *EntityProxy) ToDict() map[string]any {
@@ -291,14 +314,17 @@ func (e *EntityProxy) ToDict() map[string]any {
 		copy(vv, v)
 		props[k] = vv
 	}
+
 	data := map[string]any{
 		"id":         e.ID,
 		"schema":     e.Schema.Name,
 		"properties": props,
 	}
+
 	for k, v := range e.Context {
 		data[k] = v
 	}
+
 	return data
 }
 
@@ -307,42 +333,84 @@ func (e *EntityProxy) Clone() *EntityProxy {
 	cp := NewEntityProxy(e.Schema, e.ID)
 	cp.KeyPrefix = e.KeyPrefix
 	cp.Context = map[string]any{}
+
 	for k, v := range e.Context {
 		cp.Context[k] = v
 	}
+
 	for k, vals := range e.props {
 		vv := make([]string, len(vals))
 		copy(vv, vals)
 		cp.props[k] = vv
 	}
+
 	cp.size = e.size
+
 	return cp
 }
 
 // Merge another entity into this one using most specific common schema.
 func (e *EntityProxy) Merge(other *EntityProxy) (*EntityProxy, error) {
 	e.ID = firstNonEmpty(e.ID, other.ID)
+
 	schema, err := e.Schema.Model.CommonSchema(e.Schema, other.Schema)
 	if err != nil {
-		return nil, fmtError("cannot merge entities: %w", err)
+		return nil, fmt.Errorf("cannot merge entities: %w", err)
 	}
 	e.Schema = schema
-	// merge context (concat unique)
+
+	// Merge context (concat unique)
 	for k, v := range other.Context {
 		if _, ok := e.Context[k]; !ok {
 			e.Context[k] = v
 		}
 	}
+
 	for name, values := range other.props {
 		_ = e.Add(name, values, true)
 	}
+
 	return e, nil
 }
 
-func firstNonEmpty(a, b string) string {
-	if a != "" {
-		return a
+// EntityProxyFromDict creates an entity proxy from a plain map.
+func EntityProxyFromDict(m *Model, data map[string]any, keyPrefix string) (*EntityProxy, error) {
+	schemaName, ok := data["schema"].(string)
+	if !ok || schemaName == "" {
+		return nil, errors.New("the 'schema' field is required and must be a string")
 	}
-	return b
+
+	// Lookup schema
+	schema := m.Get(schemaName)
+	if schema == nil {
+		return nil, fmt.Errorf("schema not found: %s", schemaName)
+	}
+
+	// Validate ID
+	idStr, v := data["id"].(string)
+	if !v || idStr == "" {
+		return nil, errors.New("the 'id' field is required and must be a string")
+	}
+
+	// Create entity proxy
+	e := NewEntityProxy(schema, idStr)
+
+	// Set context and key prefix
+	e.Context = data
+	e.KeyPrefix = keyPrefix
+
+	// Validate properties field
+	props, ok := data["properties"].(map[string][]string)
+	if !ok {
+		return nil, errors.New("the 'properties' field is required and must be a map")
+	}
+
+	// Add properties
+	for name, values := range props {
+		if err := e.Add(name, values, true); err != nil {
+			return nil, fmt.Errorf("invalid property %q: %w", name, err)
+		}
+	}
+
+	return e, nil
 }
-func fmtError(format string, a ...any) error { return fmt.Errorf(format, a...) }
