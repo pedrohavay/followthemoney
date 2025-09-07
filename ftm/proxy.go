@@ -395,20 +395,37 @@ func EntityProxyFromDict(m *Model, data map[string]any, keyPrefix string) (*Enti
 	// Create entity proxy
 	e := NewEntityProxy(schema, idStr)
 
-	// Set context and key prefix
-	e.Context = data
+	// Set key prefix
 	e.KeyPrefix = keyPrefix
 
+	// Copy context fields ignoring reserved names
+	for k, v := range data {
+		if k != "id" && k != "schema" && k != "properties" {
+			e.Context[k] = v
+		}
+	}
+
 	// Validate properties field
-	props, ok := data["properties"].(map[string][]string)
+	props, ok := data["properties"].(map[string]any)
 	if !ok {
 		return nil, errors.New("the 'properties' field is required and must be a map")
 	}
 
 	// Add properties
-	for name, values := range props {
-		if err := e.Add(name, values, true); err != nil {
-			return nil, fmt.Errorf("invalid property %q: %w", name, err)
+	for name, value := range props {
+		if values, ok := value.([]interface{}); ok {
+			strValues := make([]string, len(values))
+			for i, v := range values {
+				if str, ok := v.(string); ok {
+					strValues[i] = str
+				}
+			}
+
+			if err := e.Add(name, strValues, true); err != nil {
+				return nil, fmt.Errorf("invalid property %q: %w", name, err)
+			}
+		} else {
+			return nil, fmt.Errorf("property %q must be a list of strings", name)
 		}
 	}
 
