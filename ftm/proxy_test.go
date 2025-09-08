@@ -1,6 +1,7 @@
 package ftm
 
 import (
+	"encoding/json"
 	"testing"
 )
 
@@ -46,18 +47,24 @@ func TestEntityProxyFromDict(t *testing.T) {
 		t.Fatalf("NewModel: %v", err)
 	}
 
-	data := map[string]any{
-		"id":     "test",
+	raw := `{
+		"id": "test",
 		"schema": "Person",
-		"properties": map[string][]string{
-			"name":      {"Ralph Tester"},
-			"birthDate": {"1972-05-01"},
-			"idNumber":  {"9177171", "8e839023"},
-			"website":   {"https://ralphtester.me"},
-			"phone":     {"+12025557612"},
-			"email":     {"info@ralphtester.me"},
-			"topics":    {"role.spy"},
+		"properties": {
+			"name": ["Ralph Tester"],
+			"birthDate": ["1972-05-01"],
+			"idNumber": ["9177171", "8e839023"],
+			"website": ["https://ralphtester.me"],
+			"phone": ["+12025557612"],
+			"email": ["info@ralphtester.me"],
+			"topics": ["role.spy"]
 		},
+		"last_seen":"2025-05-27T02:02:02"
+	}`
+
+	var data map[string]any
+	if err := json.Unmarshal([]byte(raw), &data); err != nil {
+		t.Fatalf("jsonUnmarshal: %v", err)
 	}
 
 	e, err := EntityProxyFromDict(m, data, "")
@@ -76,5 +83,11 @@ func TestEntityProxyFromDict(t *testing.T) {
 	email := e.Get("email")
 	if len(email) != 1 || email[0] == "" {
 		t.Fatalf("email missing: %v", email)
+	}
+
+	// Convert back to dict and check last_seen preserved (context)
+	eDict := e.ToDict()
+	if eDict["last_seen"] != "2025-05-27T02:02:02" {
+		t.Fatalf("last_seen mismatch: %v", eDict["last_seen"])
 	}
 }
