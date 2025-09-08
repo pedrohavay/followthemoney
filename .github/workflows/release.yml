@@ -23,24 +23,14 @@ jobs:
           go-version: 'stable'
           cache: true
 
-      - name: Verify module
+      - name: Tidy
         run: |
           go mod tidy
           git diff --exit-code go.mod go.sum || (echo '::error::go.mod/go.sum changed after tidy' && exit 1)
 
-      - name: Run tests
+      - name: Test
         run: go test ./... -race -short
 
-      - name: Build validation
+      - name: Build
         run: go build ./...
 
-      - name: Create Release
-        uses: ncipollo/release-action@v1
-        with:
-          generateReleaseNotes: true
-          body: |
-            ## Installation
-            
-            ```bash
-            go get github.com/${{ github.repository }}@${{ github.ref_name }}
-            ```
