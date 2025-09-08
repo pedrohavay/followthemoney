@@ -416,9 +416,11 @@ func EntityProxyFromDict(m *Model, data map[string]any, keyPrefix string) (*Enti
 		if values, ok := value.([]interface{}); ok {
 			strValues := make([]string, len(values))
 			for i, v := range values {
-				if str, ok := v.(string); ok {
-					strValues[i] = str
+				str, ok := v.(string)
+				if !ok {
+					return nil, fmt.Errorf("property %q value at index %d is not a string: %v", name, i, v)
 				}
+				strValues[i] = str
 			}
 
 			if err := e.Add(name, strValues, true); err != nil {
