@@ -18,6 +18,8 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
           check-latest: true
+          cache: true
+
       - name: Cache Go modules
         uses: actions/cache@v4
         with:
@@ -28,12 +30,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-${{ matrix.go-version }}-
             ${{ runner.os }}-go-
+
       - name: Tidy
         run: |
           go mod tidy
-          git diff --exit-code || (echo 'go.mod/go.sum changed after tidy' && exit 1)
+          git diff --exit-code go.mod go.sum || (echo '::error::go.mod/go.sum changed after tidy' && exit 1)
+
       - name: Build
         run: go build ./...
+
       - name: Test
         run: go test ./... -race -coverprofile=coverage.out
-
